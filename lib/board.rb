@@ -17,6 +17,11 @@ class Board
     print top
   end
 
+  def add(piece, square, grid = @grid)
+    coord = parse_square(square)
+    grid[coord[0]][coord[1]] = piece
+  end
+
   private
 
   def create_empty_grid
@@ -28,5 +33,10 @@ class Board
     grid
   end
 
+  def parse_square(sq)
+    sq = sq.split('')
+    row = sq[1].to_i - 1
+    col = sq[0].bytes[0] - 65
+    [row, col]
+  end
 end
- 

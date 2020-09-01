@@ -19,7 +19,9 @@ describe Board do
     expect { board.print_board }.to output(grid).to_stdout
   end
 
-  xit 'can add objects to the board array' do
+  it 'can add objects to the board array' do
+    board.add("\u2659", 'A2')
+    expect(board.grid[1][0]).to eql("\u2659")
   end
   xit 'can remove objects from the board array'
   xit 'can move objects within the board array'
