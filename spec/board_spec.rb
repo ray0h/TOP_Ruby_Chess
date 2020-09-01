@@ -7,7 +7,7 @@ grid = "   _ _ _ _ _ _ _ _\n"
   grid += row
 end
 grid += "   A B C D E F G H\n\n"
-board_array = Array.new(8) { Array.new(8) { nil } }
+board_array = Array.new(8) { Array.new(8) { nil }}
 
 describe Board do
   let(:board) { described_class.new }
