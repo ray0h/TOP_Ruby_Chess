@@ -22,6 +22,11 @@ class Board
     grid[coord[0]][coord[1]] = piece
   end
 
+  def remove(square)
+    coord = parse_square(square)
+    grid[coord[0]][coord[1]] = nil
+  end
+
   private
 
   def create_empty_grid

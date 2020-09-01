@@ -23,6 +23,13 @@ describe Board do
     board.add("\u2659", 'A2')
     expect(board.grid[1][0]).to eql("\u2659")
   end
-  xit 'can remove objects from the board array'
+
+  it 'can remove objects from the board array' do
+    board.add("\u2659", 'B2')
+    expect(board.grid[1][1]).to eql("\u2659")
+    board.remove('B2')
+    expect(board.grid[1][1]).to be_nil
+  end
+
   xit 'can move objects within the board array'
 end
