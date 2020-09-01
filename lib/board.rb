@@ -18,13 +18,21 @@ class Board
   end
 
   def add(piece, square, grid = @grid)
-    coord = parse_square(square)
+    coord = parse_coord(square)
     grid[coord[0]][coord[1]] = piece
   end
 
   def remove(square)
-    coord = parse_square(square)
+    coord = parse_coord(square)
     grid[coord[0]][coord[1]] = nil
+  end
+
+  def move(start, final)
+    start_coord = parse_coord(start)
+    final_coord = parse_coord(final)
+    piece = parse_piece(start_coord)
+    grid[start_coord[0]][start_coord[1]] = nil
+    grid[final_coord[0]][final_coord[1]] = piece
   end
 
   private
@@ -38,10 +46,14 @@ class Board
     grid
   end
 
-  def parse_square(sq)
-    sq = sq.split('')
-    row = sq[1].to_i - 1
-    col = sq[0].bytes[0] - 65
+  def parse_coord(square)
+    square = square.split('')
+    row = square[1].to_i - 1
+    col = square[0].bytes[0] - 65
     [row, col]
+  end
+
+  def parse_piece(coord, grid = @grid)
+    grid[coord[0]][coord[1]]
   end
 end

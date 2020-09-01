@@ -7,6 +7,7 @@ grid = "   _ _ _ _ _ _ _ _\n"
   grid += row
 end
 grid += "   A B C D E F G H\n\n"
+board_array = Array.new(8) { Array.new(8) { nil } }
 
 describe Board do
   let(:board) { described_class.new }
@@ -16,7 +17,7 @@ describe Board do
   end
 
   it 'can print out a CLI board based on the array' do
-    expect { board.print_board }.to output(grid).to_stdout
+    expect { board.print_board(board_array) }.to output(grid).to_stdout
   end
 
   it 'can add objects to the board array' do
@@ -31,5 +32,9 @@ describe Board do
     expect(board.grid[1][1]).to be_nil
   end
 
-  xit 'can move objects within the board array'
+  it 'can move objects within the board array' do
+    board.add("\u2659", 'B2')
+    board.move('B2', 'B4')
+    expect(board.grid[3][1]).to eql("\u2659")
+  end
 end
