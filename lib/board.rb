@@ -17,17 +17,17 @@ class Board
     print top
   end
 
-  def add(piece, square, grid = @grid)
+  def add_piece(piece, square, grid = @grid)
     coord = parse_coord(square)
     grid[coord[0]][coord[1]] = piece
   end
 
-  def remove(square)
+  def remove_piece(square)
     coord = parse_coord(square)
     grid[coord[0]][coord[1]] = nil
   end
 
-  def move(start, final)
+  def move_piece(start, final)
     start_coord = parse_coord(start)
     final_coord = parse_coord(final)
     piece = parse_piece(start_coord)
