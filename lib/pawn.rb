@@ -14,8 +14,8 @@ class Pawn < Piece
     current_square = @history.last
     current_coords = parse_coord(current_square)
 
-    poss_move_array.push(single_march(current_coords)) if single_march(current_coords)
-    poss_move_array.push(double_march(current_coords)) if first_move?
+    poss_move_array.push(single_march(current_coords, board)) if single_march(current_coords, board)
+    poss_move_array.push(double_march(current_coords, board)) if first_move? && double_march(current_coords, board)
     valid_diagonals(current_coords, board).each { |move| poss_move_array.push(move) }
 
     poss_move_array
@@ -30,14 +30,16 @@ class Pawn < Piece
     col + row.to_s
   end
 
-  def single_march(coords)
+  def single_march(coords, board)
     march = @color == 'white' ? [coords[0] + 1, coords[1]] : [coords[0] - 1, coords[1]]
-    on_board?(parse_move(march)) ? parse_move(march) : false
+    sngl_march = parse_move(march)
+    !square_occupied?(sngl_march, board) && on_board?(sngl_march) ? sngl_march : false
   end
 
-  def double_march(coords)
+  def double_march(coords, board)
     march = @color == 'white' ? [coords[0] + 2, coords[1]] : [coords[0] - 2, coords[1]]
-    parse_move(march)
+    dbl_march = parse_move(march)
+    single_march(coords, board) && !square_occupied?(dbl_march, board) ? dbl_march : false
   end
 
   def get_diagonals(coords)
@@ -61,5 +63,4 @@ class Pawn < Piece
     valid_diagonals.push(diag2) if piece2 && !my_piece?(piece2)
     valid_diagonals
   end
-
 end
