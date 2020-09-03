@@ -8,4 +8,39 @@ class Bishop < Piece
     @symbol = @color == 'white' ? "\u2657" : "\u265D"
     @history = []
   end
+
+  def possible_moves
+    current_square = @history.last
+    current_coords = parse_coord(current_square)
+    bishop_moves(current_coords)
+  end
+
+  private
+
+  def parse_square(coord)
+    row = (coord[0] + 1).to_s
+    col = (coord[1] + 65).chr
+    col + row
+  end
+
+  def possible_diagonal(coord, row_coef, col_coef)
+    inc = 1
+    diagonals = []
+    square = parse_square(coord)
+    while on_board?(square)
+      square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
+      diagonals.push(square) if on_board?(square)
+      inc += 1
+    end
+    diagonals
+  end
+
+  def bishop_moves(coord)
+    nw = possible_diagonal(coord, 1, -1)
+    ne = possible_diagonal(coord, 1, 1)
+    sw = possible_diagonal(coord, -1, -1)
+    se = possible_diagonal(coord, -1, 1)
+    possible_moves = nw + ne + sw + se
+    possible_moves
+  end
 end
