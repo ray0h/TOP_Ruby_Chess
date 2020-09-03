@@ -19,7 +19,12 @@ describe 'King - symbols and basic moves' do
     expect(wkg.possible_moves(board)).to include('C3', 'C4', 'C5', 'D3', 'D5', 'E3', 'E4', 'E5')
   end
 
-  xit 'can move to spot occupied by opponent piece'
+  it 'can move to spot occupied by opponent piece' do
+    allow(wkg).to receive(:square_occupied?).with('E4', board).and_return('bk1')
+    expect(wkg.possible_moves(board).length).to eql(8)
+    expect(wkg.possible_moves(board)).to include('E4')
+  end
+
   xit 'can not move if surrounded by its own pieces'
 end
 
