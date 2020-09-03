@@ -30,5 +30,10 @@ describe Queen do
     expect(wqn.possible_moves(board)).to_not include('C3', 'B2', 'A1', 'G4', 'H4')
   end
 
-  xit 'can not move if surrounded by its own pieces'
+  it 'can not move if surrounded by its own pieces' do
+    allow(wqn).to receive(:square_occupied?).and_return('true')
+    allow(wqn).to receive(:my_piece?).and_return(true)
+
+    expect(wqn.possible_moves(board).length).to be_zero
+  end
 end
