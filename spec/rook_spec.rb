@@ -19,6 +19,12 @@ describe Rook do
     expect(wr1.possible_moves(board)).to include('D1', 'D8', 'A4', 'G4', 'C4', 'E4', 'D3', 'D5')
   end
 
-  xit 'can move to spot occupied by opponent piece (but not beyond)'
+  it 'can move to spot occupied by opponent piece (but not beyond)' do
+    allow(wr1).to receive(:square_occupied?).with('E4', board).and_return(br1)
+
+    expect(wr1.possible_moves(board).length).to eql(11)
+    expect(wr1.possible_moves(board)).to include('E4')
+    expect(wr1.possible_moves(board)).to_not include('F4', 'G4', 'H4')
+  end
   xit 'can not move if surrounded by its own pieces'
 end
