@@ -19,7 +19,7 @@ describe Bishop do
     expect(wb1.possible_moves(board)).to include('H8', 'A7', 'A1', 'G1')
   end
 
-  it 'can not move to spot occupied by opponent piece (but not beyond)' do
+  it 'can move to spot occupied by opponent piece (but not beyond)' do
     allow(wb1).to receive(:square_occupied?).with('F6', board).and_return(bb1)
 
     expect(wb1.possible_moves(board).length).to eql(11)
