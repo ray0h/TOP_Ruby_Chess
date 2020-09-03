@@ -12,7 +12,10 @@ class King < Piece
   def possible_moves(board)
     current_square = @history.last
     current_coords = parse_coord(current_square)
-    king_moves(current_coords, board)
+    poss_moves = king_moves(current_coords, board)
+
+    opp_moves = opponent_poss_moves(board)
+    poss_moves.filter { |move| !opp_moves.include?(move) }
   end
 
   private
@@ -49,5 +52,22 @@ class King < Piece
       poss_moves += diagonal(coords, pair[0], pair[1], board)
     end
     poss_moves
+  end
+
+  def get_opponent_pieces(board)
+    opp_pieces = []
+    0.upto(7) do |i|
+      0.upto(7) do |j|
+        opp_pieces.push(board.grid[i][j]) if !board.grid[i][j].nil? && !my_piece?(board.grid[i][j])
+      end
+    end
+    opp_pieces
+  end
+
+  def opponent_poss_moves(board)
+    poss_moves = []
+    opp_pieces = get_opponent_pieces(board)
+    opp_pieces.each { |piece| poss_moves += piece.possible_moves }
+    poss_moves.uniq
   end
 end

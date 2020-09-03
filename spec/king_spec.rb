@@ -1,5 +1,11 @@
 require './lib/king'
 
+grid = []
+0.upto(7) do
+  row = Array.new(8) { nil }
+  grid.push(row)
+end
+
 describe 'King - symbols and basic moves' do
   let(:wkg) { King.new('white', 'player1') }
   let(:bkg) { King.new('black', 'player2') }
@@ -7,6 +13,7 @@ describe 'King - symbols and basic moves' do
   before(:each) do
     wkg.history.push('D4')
     allow(wkg).to receive(:square_occupied?).and_return(false)
+    allow(board).to receive(:grid).and_return(grid)
   end
 
   it 'has unique/appropriate unicode symbols' do
@@ -35,6 +42,23 @@ describe 'King - symbols and basic moves' do
 end
 
 describe 'King - moves unique to king class' do
-  xit 'can not move into an empty square within opponent piece\'s possible moves'
+  let(:wkg) { King.new('white', 'player1') }
+  let(:bkg) { King.new('black', 'player2') }
+  let(:board) { double }
+  let(:br1) { double }
+  before(:each) do
+    wkg.history.push('D4')
+    allow(wkg).to receive(:square_occupied?).and_return(false)
+    allow(board).to receive(:grid).and_return(grid)
+  end
+
+  it 'can not move into an empty square within opponent piece\'s possible moves' do
+    allow(wkg).to receive(:get_opponent_pieces).with(board).and_return([br1])
+    allow(wkg).to receive(:opponent_poss_moves).with(board).and_return(%w[E1 E2 E3 E4 E5 E6 E7 F8])
+
+    expect(wkg.possible_moves(board).length).to eql(5)
+    expect(wkg.possible_moves(board)).to_not include('E3', 'E4', 'E5')
+  end
+
   xit 'can access appropriate squares if castling'
 end
