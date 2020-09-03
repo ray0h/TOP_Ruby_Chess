@@ -9,10 +9,10 @@ class Bishop < Piece
     @history = []
   end
 
-  def possible_moves
+  def possible_moves(board)
     current_square = @history.last
     current_coords = parse_coord(current_square)
-    bishop_moves(current_coords)
+    bishop_moves(current_coords, board)
   end
 
   private
@@ -23,23 +23,25 @@ class Bishop < Piece
     col + row
   end
 
-  def possible_diagonal(coord, row_coef, col_coef)
+  def possible_diagonal(coord, row_coef, col_coef, board)
     inc = 1
     diagonals = []
     square = parse_square(coord)
     while on_board?(square)
       square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
+      break if square_occupied?(square, board)
+
       diagonals.push(square) if on_board?(square)
       inc += 1
     end
     diagonals
   end
 
-  def bishop_moves(coord)
-    nw = possible_diagonal(coord, 1, -1)
-    ne = possible_diagonal(coord, 1, 1)
-    sw = possible_diagonal(coord, -1, -1)
-    se = possible_diagonal(coord, -1, 1)
+  def bishop_moves(coord, board)
+    nw = possible_diagonal(coord, 1, -1, board)
+    ne = possible_diagonal(coord, 1, 1, board)
+    sw = possible_diagonal(coord, -1, -1, board)
+    se = possible_diagonal(coord, -1, 1, board)
     possible_moves = nw + ne + sw + se
     possible_moves
   end
