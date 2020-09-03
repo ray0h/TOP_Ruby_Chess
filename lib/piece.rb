@@ -11,6 +11,8 @@ class Piece
   private
 
   # methods to help define general movement logic
+
+  # translate [row][col] coords from 'A2' move
   def parse_coord(square)
     square = square.split('')
     row = square[1].to_i - 1
@@ -28,6 +30,8 @@ class Piece
   end
 
   def square_occupied?(square, board)
+    return false unless on_board?(square)
+
     coord = parse_coord(square)
     space = board.grid[coord[0]][coord[1]]
     space.nil? ? false : space
