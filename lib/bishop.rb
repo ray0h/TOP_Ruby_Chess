@@ -26,13 +26,12 @@ class Bishop < Piece
   def possible_diagonal(coord, row_coef, col_coef, board)
     inc = 1
     diagonals = []
-    square = parse_square(coord)
-    while on_board?(square)
-      square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
-      break if square_occupied?(square, board)
-
-      diagonals.push(square) if on_board?(square)
+    loop do
+      next_square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
+      piece = square_occupied?(next_square, board)
+      diagonals.push(next_square) if (piece && !my_piece?(piece)) || (!piece && on_board?(next_square))
       inc += 1
+      break if piece || !on_board?(next_square)
     end
     diagonals
   end

@@ -13,7 +13,6 @@ describe Bishop do
 
   it 'moves like a bishop piece (diagonally)' do
     allow(wb1).to receive(:square_occupied?).and_return(false)
-
     expect(wb1.possible_moves(board).length).to eql(13)
     expect(wb1.possible_moves(board)).to include('H8', 'A7', 'A1', 'G1')
   end
@@ -25,9 +24,9 @@ describe Bishop do
     expect(wb1.possible_moves(board)).to_not include('G7', 'H8')
   end
 
-  it 'can not move if surrounded' do
+  it 'can not move if surrounded by its team\'s pieces' do
     allow(wb1).to receive(:square_occupied?).and_return('yes')
-
+    allow(wb1).to receive(:my_piece?).and_return(true)
     expect(wb1.possible_moves(board).length).to be_zero
   end
 end
