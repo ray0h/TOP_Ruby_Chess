@@ -26,5 +26,11 @@ describe Rook do
     expect(wr1.possible_moves(board)).to include('E4')
     expect(wr1.possible_moves(board)).to_not include('F4', 'G4', 'H4')
   end
-  xit 'can not move if surrounded by its own pieces'
+
+  it 'can not move if surrounded by its own pieces' do
+    allow(wr1).to receive(:square_occupied?).and_return('true')
+    allow(wr1).to receive(:my_piece?).and_return(true)
+
+    expect(wr1.possible_moves(board).length).to be_zero
+  end
 end
