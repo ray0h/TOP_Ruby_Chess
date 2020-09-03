@@ -21,11 +21,17 @@ describe 'King - symbols and basic moves' do
 
   it 'can move to spot occupied by opponent piece' do
     allow(wkg).to receive(:square_occupied?).with('E4', board).and_return('bk1')
+    allow(wkg).to receive(:my_piece?).with('bk1').and_return(false)
     expect(wkg.possible_moves(board).length).to eql(8)
     expect(wkg.possible_moves(board)).to include('E4')
   end
 
-  xit 'can not move if surrounded by its own pieces'
+  it 'can not move if surrounded by its own pieces' do
+    allow(wkg).to receive(:square_occupied?).and_return('true')
+    allow(wkg).to receive(:my_piece?).and_return(true)
+
+    expect(wkg.possible_moves(board).length).to be_zero
+  end
 end
 
 describe 'King - moves unique to king class' do

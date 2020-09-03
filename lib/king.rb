@@ -25,14 +25,16 @@ class King < Piece
 
   def diagonal(coord, row_coef, col_coef, board)
     next_square = parse_square([coord[0] + (1 * row_coef), coord[1] + (1 * col_coef)])
+    piece = square_occupied?(next_square, board)
 
-    on_board?(next_square) ? [next_square] : []
+    (piece && !my_piece?(piece)) || (!piece && on_board?(next_square)) ? [next_square] : []
   end
 
   def line(coord, row_coef, col_coef, board)
     next_square = parse_square([coord[0] + (1 * row_coef), coord[1] + (1 * col_coef)])
+    piece = square_occupied?(next_square, board)
 
-    on_board?(next_square) ? [next_square] : []
+    (piece && !my_piece?(piece)) || (!piece && on_board?(next_square)) ? [next_square] : []
   end
 
   def king_moves(coords, board)
