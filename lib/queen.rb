@@ -28,10 +28,11 @@ class Queen < Piece
     diagonals = []
     loop do
       next_square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
+      piece = square_occupied?(next_square, board)
 
-      diagonals.push(next_square) if on_board?(next_square)
+      diagonals.push(next_square) if (piece && !my_piece?(piece)) || (!piece && on_board?(next_square))
       inc += 1
-      break if !on_board?(next_square)
+      break if piece || !on_board?(next_square)
     end
     diagonals
   end
@@ -41,10 +42,11 @@ class Queen < Piece
     line = []
     loop do
       next_square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
-     
-      line.push(next_square) if on_board?(next_square)
+      piece = square_occupied?(next_square, board)
+
+      line.push(next_square) if (piece && !my_piece?(piece)) || (!piece && on_board?(next_square))
       inc += 1
-      break if !on_board?(next_square)
+      break if piece || !on_board?(next_square)
     end
     line
   end

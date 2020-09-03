@@ -19,6 +19,16 @@ describe Queen do
     expect(wqn.possible_moves(board)).to include('A1', 'A4', 'A7', 'D1', 'D8', 'G1', 'H4', 'H8')
   end
 
-  xit 'can move to spot occupied by opponent piece (but not beyond)'
+  it 'can move to spot occupied by opponent piece (but not beyond)' do
+    allow(wqn).to receive(:square_occupied?).with('F4', board).and_return('bqn')
+    allow(wqn).to receive(:square_occupied?).with('C3', board).and_return('wk1')
+    allow(wqn).to receive(:my_piece?).with('bqn').and_return(false)
+    allow(wqn).to receive(:my_piece?).with('wk1').and_return(true)
+
+    expect(wqn.possible_moves(board).length).to eql(22)
+    expect(wqn.possible_moves(board)).to include('F4')
+    expect(wqn.possible_moves(board)).to_not include('C3', 'B2', 'A1', 'G4', 'H4')
+  end
+
   xit 'can not move if surrounded by its own pieces'
 end
