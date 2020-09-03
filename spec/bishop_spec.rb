@@ -22,14 +22,12 @@ describe Bishop do
     allow(wb1).to receive(:square_occupied?).and_return(false)
     allow(wb1).to receive(:square_occupied?).with('F6', board).and_return(bb1)
 
-    expect(wb1.possible_moves(board).length).to eql(10)
-    expect(wb1.possible_moves(board)).to include('A1', 'A7', 'G1')
     expect(wb1.possible_moves(board)).to_not include('G7', 'H8')
   end
 
-  it 'can not move if surrounded by other pieces' do
+  it 'can not move if surrounded' do
     allow(wb1).to receive(:square_occupied?).and_return('yes')
-    
+
     expect(wb1.possible_moves(board).length).to be_zero
   end
 end
