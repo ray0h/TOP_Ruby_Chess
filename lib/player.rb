@@ -91,13 +91,15 @@ class Player
 
   def valid_final_square?(final_square, init_square, board)
     piece = get_piece(init_square, board)
-    return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(final_square)
-
     return { 'valid' => true, 'error_msg' => '' } if final_square == 'XX'
+    return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(final_square)
+    return { 'valid' => false, 'error_msg' => 'Enter a valid square on the board' } unless on_board?(final_square)
 
-    return { 'valid' => false, 'error_msg' => 'That\'s the current spot, pick a square to move to' } if init_square == final_square
+    same_sq_err = 'That\'s the current spot, pick a square to move to'
+    return { 'valid' => false, 'error_msg' =>  same_sq_err } if init_square == final_square
 
-    return { 'valid' => false, 'error_msg' => 'Can not move current piece there, pick another square'} unless piece.possible_moves.include?(final_square)
+    not_poss_err = 'Can not move current piece there, pick another square'
+    return { 'valid' => false, 'error_msg' => not_poss_err } unless piece.possible_moves.include?(final_square)
 
     { 'valid' => true, 'error_msg' => '' }
   end

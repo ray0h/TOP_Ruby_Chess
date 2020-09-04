@@ -125,4 +125,10 @@ describe 'Player - moves - choosing final square to move piece' do
     2.times { string += "Enter a valid square\n#{std_puts}" }
     expect { player1.finish_move('A2', board) }.to output(string).to_stdout
   end
+
+  it 'rejects if initial square is not on board' do
+    allow(player1).to receive(:gets).and_return('C9', 'A3')
+    string = "#{std_puts}Enter a valid square on the board\n#{std_puts}"
+    expect { player1.finish_move('A2', board) }.to output(string).to_stdout
+  end
 end
