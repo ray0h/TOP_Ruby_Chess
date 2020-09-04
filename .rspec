@@ -1,1 +1,7 @@
 --require spec_helper
+
+def ignore_puts
+   before do
+      $stdout.stub(:write)
+   end
+end

@@ -6,19 +6,19 @@ class Player
   end
 
   def change_id
-    print "#{id}, what should I call you now? "
+    print "#{@id}, what should I call you now? "
     new_id = gets.to_s.chomp
     self.id = new_id
   end
 
   def start_move(board)
-    print "#{id}, pick a square: "
+    print "#{@id}, pick a square: "
     init_square = gets.to_s.chomp
     move = valid_square?(init_square, board)
 
     until move['valid']
       print "#{move['error_msg']}\n"
-      print "#{id}, pick a square: "
+      print "#{@id}, pick a square: "
       init_square = gets.to_s.chomp
       move = valid_square?(init_square, board)
     end
@@ -26,12 +26,12 @@ class Player
   end
 
   def finish_move(init_square, board)
-    print "#{id}, pick a square to move to, or press 'XX' to cancel move: "
+    print "#{@id}, pick a square to move to, or press 'XX' to cancel move: "
     final_square = gets.to_s.chomp
     move = valid_final_square?(final_square, init_square, board)
     until move['valid']
       print "#{move['error_msg']}\n"
-      print "#{id}, pick a square to move to, or press 'XX' to cancel move: "
+      print "#{@id}, pick a square to move to, or press 'XX' to cancel move: "
       final_square = gets.to_s.chomp
       move = valid_final_square?(final_square, init_square, board)
     end
@@ -67,7 +67,7 @@ class Player
 
   def my_piece?(square, board)
     piece = square_occupied?(square, board)
-    piece.id == id
+    piece.id == @id
   end
 
   def valid_square?(square, board)
@@ -91,6 +91,7 @@ class Player
 
   def valid_final_square?(final_square, init_square, board)
     piece = get_piece(init_square, board)
+    return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(final_square)
 
     return { 'valid' => true, 'error_msg' => '' } if final_square == 'XX'
 

@@ -1,6 +1,13 @@
 require './lib/player'
 
-grid = Array.new(8) { Array.new(8) {nil} }
+grid = Array.new(8) { Array.new(8) { nil } }
+
+def silence_output
+  orig_stdout = $stdout
+  $stdout = StringIO.new
+  yield
+  $stdout = orig_stdout
+end
 
 describe 'Player - id' do
   let(:player1) { Player.new('player1') }
@@ -60,8 +67,10 @@ describe 'Player - moves - picking initial square' do
   end
 
   it 'returns the starting square' do
-    allow(player1).to receive(:gets).and_return('A2')
-    expect(player1.start_move(board)).to eql('A2')
+    silence_output do
+      allow(player1).to receive(:gets).and_return('A2')
+      expect(player1.start_move(board)).to eql('A2')
+    end
   end
 end
 
@@ -89,10 +98,12 @@ describe 'Player - moves - choosing final square to move piece' do
   end
 
   it 'can cancel move and start again' do
-    allow(player1).to receive(:gets).and_return('XX')
-    string = std_puts + "Canceling move\n"
-    expect { player1.finish_move('A2', board) }.to output(string).to_stdout
-    expect(player1.finish_move('A2', board)).to eql('XX')
+    silence_output do
+      allow(player1).to receive(:gets).and_return('XX')
+      string = std_puts + "Canceling move\n"
+      expect { player1.finish_move('A2', board) }.to output(string).to_stdout
+      expect(player1.finish_move('A2', board)).to eql('XX')
+    end
   end
 
   it 'rejects if final square is not in piece\'s possible moves' do
@@ -102,7 +113,16 @@ describe 'Player - moves - choosing final square to move piece' do
   end
 
   it 'completes a move and return a move combo for updating board/piece state' do
-    allow(player1).to receive(:gets).and_return('A3')
-    expect(player1.finish_move('A2', board)).to eql(%w[A2 A3])
-  end  
+    silence_output do
+      allow(player1).to receive(:gets).and_return('A3')
+      expect(player1.finish_move('A2', board)).to eql(%w[A2 A3])
+    end
+  end
+
+  it 'rejects if not a valid square length' do
+    allow(player1).to receive(:gets).and_return('Q', 'B15', 'A3')
+    string = std_puts
+    2.times { string += "Enter a valid square\n#{std_puts}" }
+    expect { player1.finish_move('A2', board) }.to output(string).to_stdout
+  end
 end
