@@ -73,6 +73,7 @@ describe 'Player - moves - choosing final square to move piece' do
   before(:each) do
     grid[1][0] = wp1
     allow(board).to receive(:grid).and_return(grid)
+    allow(wp1).to receive(:possible_moves).and_return(%w[A3 A4])
   end
   std_puts = "player1, pick a square to move to, or press 'XX' to cancel move: "
 
@@ -93,7 +94,12 @@ describe 'Player - moves - choosing final square to move piece' do
     expect { player1.finish_move('A2', board) }.to output(string).to_stdout
     expect(player1.finish_move('A2', board)).to eql('XX')
   end
-  
-  xit 'rejects if final square is not in piece\'s possible moves'
+
+  it 'rejects if final square is not in piece\'s possible moves' do
+    allow(player1).to receive(:gets).and_return('A6', 'A3')
+    string = std_puts + "Can not move current piece there, pick another square\n" + std_puts
+    expect { player1.finish_move('A2', board) }.to output(string).to_stdout
+  end
+
   xit 'completes a move and return a move combo for updating board/piece state'
 end

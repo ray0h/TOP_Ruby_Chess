@@ -84,7 +84,10 @@ class Player
     { 'valid' => true, 'error_msg' => '' }
   end
 
-  def get_piece(square, board); end
+  def get_piece(square, board)
+    coord = parse_coord(square)
+    board.grid[coord[0]][coord[1]]
+  end
 
   def valid_final_square?(final_square, init_square, board)
     piece = get_piece(init_square, board)
@@ -92,6 +95,8 @@ class Player
     return { 'valid' => true, 'error_msg' => '' } if final_square == 'XX'
 
     return { 'valid' => false, 'error_msg' => 'That\'s the current spot, pick a square to move to' } if init_square == final_square
+
+    return { 'valid' => false, 'error_msg' => 'Can not move current piece there, pick another square'} unless piece.possible_moves.include?(final_square)
 
     { 'valid' => true, 'error_msg' => '' }
   end
