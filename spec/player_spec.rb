@@ -24,7 +24,12 @@ describe 'Player - moves - picking initial square' do
     expect { player1.start_move }.to output(string).to_stdout
   end
 
-  xit 'rejects if initial square is not on board'
+  it 'rejects if initial square is not on board' do
+    allow(player1).to receive(:gets).and_return('C9', 'A1')
+    string = "player1, pick a square: Enter a valid square on the board\nplayer1, pick a square: "
+    expect { player1.start_move }.to output(string).to_stdout
+  end
+
   xit 'rejects if initial square is unoccupied'
   xit 'rejects if initial square is occupied by opponents piece'
   xit 'prints back the piece picked'

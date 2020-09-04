@@ -31,17 +31,24 @@ class Player
 
   def parse_coord(square)
     coord = square.split('')
-    row = coord[0].to_i + 1
-    col = coord[1].bytes[0] - 65
+    row = coord[1].to_i + 1
+    col = coord[0].bytes[0] - 65
     [row, col]
   end
 
-  def valid_id(square)
+  def valid_id?(square)
     square.length == 2
   end
 
+  def on_board?(square)
+    coord = parse_coord(square)
+    coord[0].between?(0, 7) && coord[1].between?(0, 7)
+  end
+
   def valid_square?(square)
-    return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id(square)
+    return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(square)
+
+    return { 'valid' => false, 'error_msg' => 'Enter a valid square on the board' } unless on_board?(square)
 
     { 'valid' => true, 'error_msg' => '' }
   end
