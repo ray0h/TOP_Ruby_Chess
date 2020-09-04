@@ -60,7 +60,10 @@ describe 'Player - moves - picking initial square' do
     expect { player1.start_move(board) }.to output(string).to_stdout
   end
 
-  xit 'prints back the piece picked'
+  it 'returns the starting square' do
+    allow(player1).to receive(:gets).and_return('A2')
+    expect(player1.start_move(board)).to eql('A2')
+  end
 end
 
 describe 'Player - moves - choosing final square to move piece' do
