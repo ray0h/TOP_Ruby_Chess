@@ -11,6 +11,10 @@ class Player
     self.id = new_id
   end
 
+  def start_move
+    print "#{id}, pick a square: "
+  end
+
   private
 
   attr_writer :id

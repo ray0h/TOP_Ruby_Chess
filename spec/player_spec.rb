@@ -12,7 +12,12 @@ describe 'Player - id' do
 end
 
 describe 'Player - moves - picking intitial square' do
-  xit 'asks for an initial square'
+  let(:player1) { Player.new('player1') }
+
+  it 'asks for an initial square' do
+    expect { player1.start_move }.to output('player1, pick a square: ').to_stdout
+  end
+
   xit 'rejects if initial square is not on board'
   xit 'rejects if initial square is unoccupied'
   xit 'rejects if initial square is occupied by opponents piece'
