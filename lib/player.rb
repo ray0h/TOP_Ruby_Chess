@@ -36,7 +36,7 @@ class Player
       move = valid_final_square?(final_square, init_square, board)
     end
     puts 'Canceling move' if final_square == 'XX'
-    final_square
+    final_square == 'XX' ? final_square : [ init_square, final_square ]
   end
 
   private

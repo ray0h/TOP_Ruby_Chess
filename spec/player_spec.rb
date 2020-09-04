@@ -101,5 +101,8 @@ describe 'Player - moves - choosing final square to move piece' do
     expect { player1.finish_move('A2', board) }.to output(string).to_stdout
   end
 
-  xit 'completes a move and return a move combo for updating board/piece state'
+  it 'completes a move and return a move combo for updating board/piece state' do
+    allow(player1).to receive(:gets).and_return('A3')
+    expect(player1.finish_move('A2', board)).to eql(%w[A2 A3])
+  end  
 end
