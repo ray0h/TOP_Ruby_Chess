@@ -11,16 +11,16 @@ class Player
     self.id = new_id
   end
 
-  def start_move
+  def start_move(board)
     print "#{id}, pick a square: "
     init_square = gets.to_s.chomp
-    move = valid_square?(init_square)
+    move = valid_square?(init_square, board)
 
     until move['valid']
       print "#{move['error_msg']}\n"
       print "#{id}, pick a square: "
       init_square = gets.to_s.chomp
-      move = valid_square?(init_square)
+      move = valid_square?(init_square, board)
     end
     init_square
   end
@@ -31,7 +31,7 @@ class Player
 
   def parse_coord(square)
     coord = square.split('')
-    row = coord[1].to_i + 1
+    row = coord[1].to_i - 1
     col = coord[0].bytes[0] - 65
     [row, col]
   end
@@ -45,11 +45,32 @@ class Player
     coord[0].between?(0, 7) && coord[1].between?(0, 7)
   end
 
-  def valid_square?(square)
+  def square_occupied?(square, board)
+    coord = parse_coord(square)
+    space = board.grid[coord[0]][coord[1]]
+    space.nil? ? false : space
+  end
+
+  def valid_square?(square, board)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(square)
 
     return { 'valid' => false, 'error_msg' => 'Enter a valid square on the board' } unless on_board?(square)
 
+    return { 'valid' => false, 'error_msg' => 'That square is empty, pick a square with a piece' } unless square_occupied?(square, board)
+
     { 'valid' => true, 'error_msg' => '' }
   end
 end
+
+class Board 
+  attr_reader :grid
+  def initialize
+    @grid = Array.new(8) {Array.new(8) {nil}}
+  end
+end
+
+# board = Board.new
+# board.grid[1][0] = 'wp1'
+
+# player = Player.new('player1')
+# p player.start_move(board)

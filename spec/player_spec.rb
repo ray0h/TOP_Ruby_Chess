@@ -1,5 +1,8 @@
 require './lib/player'
 
+grid = Array.new(8) { Array.new(8) {nil} }
+grid[1][0] = 'wp1'
+
 describe 'Player - id' do
   let(:player1) { Player.new('player1') }
   it 'can change name/id' do
@@ -12,25 +15,37 @@ end
 
 describe 'Player - moves - picking initial square' do
   let(:player1) { Player.new('player1') }
-  it 'asks for an initial square' do
-    allow(player1).to receive(:gets).and_return('B2')
-    expect { player1.start_move }.to output('player1, pick a square: ').to_stdout
+  let(:board) { double }
+  before(:each) do
+    allow(board).to receive(:grid).and_return(grid)
   end
+  std_puts = 'player1, pick a square: '
 
+  it 'asks for an initial square' do
+    allow(player1).to receive(:gets).and_return('A2')
+    expect { player1.start_move(board) }.to output(std_puts).to_stdout
+  end
+  
   it 'rejects if not a valid square length' do
-    allow(player1).to receive(:gets).and_return('Q', 'B15', 'A1')
-    string = 'player1, pick a square: '
-    2.times { string += "Enter a valid square\nplayer1, pick a square: " }
-    expect { player1.start_move }.to output(string).to_stdout
+    allow(player1).to receive(:gets).and_return('Q', 'B15', 'A2')
+    string = std_puts
+    2.times { string += "Enter a valid square\n#{std_puts}" }
+    expect { player1.start_move(board) }.to output(string).to_stdout
   end
 
   it 'rejects if initial square is not on board' do
-    allow(player1).to receive(:gets).and_return('C9', 'A1')
-    string = "player1, pick a square: Enter a valid square on the board\nplayer1, pick a square: "
-    expect { player1.start_move }.to output(string).to_stdout
+    allow(player1).to receive(:gets).and_return('C9', 'A2')
+    string = "#{std_puts}Enter a valid square on the board\n#{std_puts}"
+    expect { player1.start_move(board) }.to output(string).to_stdout
   end
 
-  xit 'rejects if initial square is unoccupied'
+  it 'rejects if initial square is unoccupied' do
+    allow(player1).to receive(:gets).and_return('A1', 'A2')
+    string = "#{std_puts}That square is empty, pick a square with a piece\n#{std_puts}"
+
+    expect { player1.start_move(board) }.to output(string).to_stdout
+  end
+
   xit 'rejects if initial square is occupied by opponents piece'
   xit 'prints back the piece picked'
 end
