@@ -26,15 +26,16 @@ class Player
   end
 
   def finish_move(init_square, board)
-    print "#{id}, pick a square to move to, or press 'X' to cancel move: "
+    print "#{id}, pick a square to move to, or press 'XX' to cancel move: "
     final_square = gets.to_s.chomp
     move = valid_final_square?(final_square, init_square, board)
     until move['valid']
       print "#{move['error_msg']}\n"
-      print "#{id}, pick a square to move to, or press 'X' to cancel move: "
+      print "#{id}, pick a square to move to, or press 'XX' to cancel move: "
       final_square = gets.to_s.chomp
       move = valid_final_square?(final_square, init_square, board)
     end
+    puts 'Canceling move' if final_square == 'XX'
     final_square
   end
 
@@ -88,21 +89,10 @@ class Player
   def valid_final_square?(final_square, init_square, board)
     piece = get_piece(init_square, board)
 
+    return { 'valid' => true, 'error_msg' => '' } if final_square == 'XX'
+
     return { 'valid' => false, 'error_msg' => 'That\'s the current spot, pick a square to move to' } if init_square == final_square
 
     { 'valid' => true, 'error_msg' => '' }
   end
 end
-
-class Board 
-  attr_reader :grid
-  def initialize
-    @grid = Array.new(8) {Array.new(8) {nil}}
-  end
-end
-
-# board = Board.new
-# board.grid[1][0] = 'wp1'
-
-# player = Player.new('player1')
-# p player.start_move(board)
