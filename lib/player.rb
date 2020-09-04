@@ -25,10 +25,17 @@ class Player
     init_square
   end
 
-  def finish_move(square, board)
-    piece = get_piece(square, board)
+  def finish_move(init_square, board)
     print "#{id}, pick a square to move to, or press 'X' to cancel move: "
-    move = gets.to_s.chomp
+    final_square = gets.to_s.chomp
+    move = valid_final_square?(final_square, init_square, board)
+    until move['valid']
+      print "#{move['error_msg']}\n"
+      print "#{id}, pick a square to move to, or press 'X' to cancel move: "
+      final_square = gets.to_s.chomp
+      move = valid_final_square?(final_square, init_square, board)
+    end
+    final_square
   end
 
   private
@@ -77,6 +84,14 @@ class Player
   end
 
   def get_piece(square, board); end
+
+  def valid_final_square?(final_square, init_square, board)
+    piece = get_piece(init_square, board)
+
+    return { 'valid' => false, 'error_msg' => 'That\'s the current spot, pick a square to move to' } if init_square == final_square
+
+    { 'valid' => true, 'error_msg' => '' }
+  end
 end
 
 class Board 

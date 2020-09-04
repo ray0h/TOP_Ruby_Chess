@@ -81,6 +81,12 @@ describe 'Player - moves - choosing final square to move piece' do
     expect { player1.finish_move('A2', board) }.to output(std_puts).to_stdout
   end
 
+  it 'asks again if current square is entered' do
+    allow(player1).to receive(:gets).and_return('A2', 'A3')
+    string = std_puts + "That's the current spot, pick a square to move to\n" + std_puts
+    expect { player1.finish_move('A2', board) }.to output(string).to_stdout
+  end
+
   xit 'can cancel move and start again'
   xit 'rejects if final square is not in piece\'s possible moves'
   xit 'completes a move and return a move combo for updating board/piece state'
