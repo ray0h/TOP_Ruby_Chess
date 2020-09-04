@@ -1,7 +1,14 @@
 require './lib/player'
 
 describe 'Player - id' do
-  xit 'can change name/id'
+  let(:player1) { Player.new('player1') }
+  it 'can change name/id' do
+    expect(player1.id).to eql('player1')
+    # allow(player1).to receive(:change_id)
+    allow(player1).to receive(:gets).and_return('Bob')
+    expect { player1.change_id }.to output('player1, what should I call you now? ').to_stdout
+    expect(player1.id).to eql('Bob')
+  end
 end
 
 describe 'Player - moves - picking intitial square' do
