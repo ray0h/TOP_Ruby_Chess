@@ -2,7 +2,6 @@ require './lib/player'
 
 grid = Array.new(8) { Array.new(8) {nil} }
 
-
 describe 'Player - id' do
   let(:player1) { Player.new('player1') }
   it 'can change name/id' do
@@ -67,7 +66,21 @@ describe 'Player - moves - picking initial square' do
 end
 
 describe 'Player - moves - choosing final square to move piece' do
-  xit 'asks for a final square to move piece to'
+  let(:player1) { Player.new('player1') }
+  let(:board) { double }
+  let(:wp1) { double }
+ 
+  before(:each) do
+    grid[1][0] = wp1
+    allow(board).to receive(:grid).and_return(grid)
+  end
+  std_puts = "player1, pick a square to move to, or press 'X' to cancel move: "
+
+  it 'asks for a final square to move piece to' do
+    allow(player1).to receive(:gets).and_return('A3')
+    expect { player1.finish_move('A2', board) }.to output(std_puts).to_stdout
+  end
+
   xit 'can cancel move and start again'
   xit 'rejects if final square is not in piece\'s possible moves'
   xit 'completes a move and return a move combo for updating board/piece state'

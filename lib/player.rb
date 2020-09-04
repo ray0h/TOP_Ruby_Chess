@@ -25,6 +25,12 @@ class Player
     init_square
   end
 
+  def finish_move(square, board)
+    piece = get_piece(square, board)
+    print "#{id}, pick a square to move to, or press 'X' to cancel move: "
+    move = gets.to_s.chomp
+  end
+
   private
 
   attr_writer :id
@@ -69,6 +75,8 @@ class Player
 
     { 'valid' => true, 'error_msg' => '' }
   end
+
+  def get_piece(square, board); end
 end
 
 class Board 
