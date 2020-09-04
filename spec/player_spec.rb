@@ -1,7 +1,7 @@
 require './lib/player'
 
 grid = Array.new(8) { Array.new(8) {nil} }
-grid[1][0] = 'wp1'
+
 
 describe 'Player - id' do
   let(:player1) { Player.new('player1') }
@@ -16,8 +16,15 @@ end
 describe 'Player - moves - picking initial square' do
   let(:player1) { Player.new('player1') }
   let(:board) { double }
+  let(:wp1) { double }
+  let(:bp1) { double }
+ 
   before(:each) do
+    grid[1][0] = wp1
+    grid[6][0] = bp1
     allow(board).to receive(:grid).and_return(grid)
+    allow(wp1).to receive(:id).and_return('player1')
+    allow(bp1).to receive(:id).and_return('player2')
   end
   std_puts = 'player1, pick a square: '
 
@@ -25,7 +32,7 @@ describe 'Player - moves - picking initial square' do
     allow(player1).to receive(:gets).and_return('A2')
     expect { player1.start_move(board) }.to output(std_puts).to_stdout
   end
-  
+
   it 'rejects if not a valid square length' do
     allow(player1).to receive(:gets).and_return('Q', 'B15', 'A2')
     string = std_puts
@@ -46,7 +53,13 @@ describe 'Player - moves - picking initial square' do
     expect { player1.start_move(board) }.to output(string).to_stdout
   end
 
-  xit 'rejects if initial square is occupied by opponents piece'
+  it 'rejects if initial square is occupied by opponents piece' do
+    allow(player1).to receive(:gets).and_return('A7', 'A2')
+    string = "#{std_puts}That is opponent's piece, pick one of yours\n#{std_puts}"
+
+    expect { player1.start_move(board) }.to output(string).to_stdout
+  end
+
   xit 'prints back the piece picked'
 end
 

@@ -51,12 +51,21 @@ class Player
     space.nil? ? false : space
   end
 
+  def my_piece?(square, board)
+    piece = square_occupied?(square, board)
+    piece.id == id
+  end
+
   def valid_square?(square, board)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(square)
 
     return { 'valid' => false, 'error_msg' => 'Enter a valid square on the board' } unless on_board?(square)
 
-    return { 'valid' => false, 'error_msg' => 'That square is empty, pick a square with a piece' } unless square_occupied?(square, board)
+    empty_sq_msg = 'That square is empty, pick a square with a piece'
+    return { 'valid' => false, 'error_msg' => empty_sq_msg } unless square_occupied?(square, board)
+
+    opp_piece_msg = 'That is opponent\'s piece, pick one of yours'
+    return { 'valid' => false, 'error_msg' => opp_piece_msg } unless my_piece?(square, board)
 
     { 'valid' => true, 'error_msg' => '' }
   end
