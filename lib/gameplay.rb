@@ -16,6 +16,7 @@ class Gameplay
     @board = Board.new
     @p1_pieces = assign_pieces('white', @player1.id)
     @p2_pieces = assign_pieces('black', @player2.id)
+    setup_board
   end
 
   private
@@ -34,6 +35,31 @@ class Gameplay
     knight = [Knight.new(color, player_id), Knight.new(color, player_id)]
     pawn = []
     8.times { pawn.push(Pawn.new(color, player_id)) }
-    [king, queen, rook, bishop, knight, pawn]
+    [king, queen, bishop, knight, rook, pawn]
+  end
+
+  def place_pair(pair, row, inc_from_end)
+    row[0 + inc_from_end] = pair[0]
+    row[7 - inc_from_end] = pair[1]
+  end
+
+  def setup_pieces(pieces, back_row, front_row)
+    # king
+    back_row[4] = pieces[0]
+    # queen
+    back_row[3] = pieces[1]
+    # bishops
+    place_pair(pieces[2], back_row, 2)
+    # knights
+    place_pair(pieces[3], back_row, 1)
+    # rooks
+    place_pair(pieces[4], back_row, 0)
+    # pawns
+    0.upto(7) { |i| front_row[i] = pieces[5][i] }
+  end
+
+  def setup_board
+    setup_pieces(@p2_pieces, @board.grid[7], @board.grid[6])
+    setup_pieces(@p1_pieces, @board.grid[0], @board.grid[1])
   end
 end

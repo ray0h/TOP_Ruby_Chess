@@ -30,7 +30,12 @@ describe Gameplay do
       end
     end
 
-    xit 'adds pieces to the board for a new game'
+    it 'adds pieces to the board for a new game' do
+      expect(game.board.grid[7].none?(nil)).to be_truthy
+      expect(game.board.grid[6].none?(nil)).to be_truthy
+      expect(game.board.grid[1].none?(nil)).to be_truthy
+      expect(game.board.grid[0].none?(nil)).to be_truthy
+    end
   end
 
   context 'basic gameplay' do
