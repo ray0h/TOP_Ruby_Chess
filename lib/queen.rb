@@ -17,6 +17,14 @@ class Queen < Piece
 
   private
 
+  def opponent_square?(piece)
+    piece && !my_piece?(piece)
+  end
+
+  def valid_empty_square?(piece, next_square)
+    !piece && on_board?(next_square)
+  end
+
   def possible_diagonal(coord, row_coef, col_coef, board)
     inc = 1
     diagonals = []
@@ -24,7 +32,7 @@ class Queen < Piece
       next_square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
       piece = square_occupied?(next_square, board)
 
-      diagonals.push(next_square) if (piece && !my_piece?(piece)) || (!piece && on_board?(next_square))
+      diagonals.push(next_square) if opponent_square?(piece) || valid_empty_square?(piece, next_square)
       inc += 1
       break if piece || !on_board?(next_square)
     end
@@ -38,7 +46,7 @@ class Queen < Piece
       next_square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
       piece = square_occupied?(next_square, board)
 
-      line.push(next_square) if (piece && !my_piece?(piece)) || (!piece && on_board?(next_square))
+      line.push(next_square) if opponent_square?(piece) || valid_empty_square?(piece, next_square)
       inc += 1
       break if piece || !on_board?(next_square)
     end
@@ -46,17 +54,14 @@ class Queen < Piece
   end
 
   def queen_moves(coord, board)
-    n = possible_line(coord, 1, 0, board)
-    e = possible_line(coord, 0, 1, board)
-    w = possible_line(coord, 0, -1, board)
-    s = possible_line(coord, -1, 0, board)
+    # coefficients in directions radiate horiz/vert/diagonally from queen position
+    possible_moves = []
+    plus_directions = [[1, 0], [0, 1], [0, -1], [-1, 0]]
+    plus_directions.each { |coeffs| possible_moves += possible_line(coord, coeffs[0], coeffs[1], board) }
 
-    nw = possible_diagonal(coord, 1, -1, board)
-    ne = possible_diagonal(coord, 1, 1, board)
-    sw = possible_diagonal(coord, -1, -1, board)
-    se = possible_diagonal(coord, -1, 1, board)
+    x_directions = [[1, -1], [1, 1], [-1, -1], [-1, 1]]
+    x_directions.each { |coeffs| possible_moves += possible_diagonal(coord, coeffs[0], coeffs[1], board) }
 
-    possible_moves = n + e + w + s + nw + ne + sw + se
     possible_moves
   end
 end

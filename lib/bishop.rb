@@ -17,13 +17,21 @@ class Bishop < Piece
 
   private
 
+  def opponent_square?(piece)
+    piece && !my_piece?(piece)
+  end
+
+  def valid_empty_square?(piece, next_square)
+    !piece && on_board?(next_square)
+  end
+
   def possible_diagonal(coord, row_coef, col_coef, board)
     inc = 1
     diagonals = []
     loop do
       next_square = parse_square([coord[0] + (inc * row_coef), coord[1] + (inc * col_coef)])
       piece = square_occupied?(next_square, board)
-      diagonals.push(next_square) if (piece && !my_piece?(piece)) || (!piece && on_board?(next_square))
+      diagonals.push(next_square) if opponent_square?(piece) || valid_empty_square?(piece, next_square)
       inc += 1
       break if piece || !on_board?(next_square)
     end
@@ -31,11 +39,11 @@ class Bishop < Piece
   end
 
   def bishop_moves(coord, board)
-    nw = possible_diagonal(coord, 1, -1, board)
-    ne = possible_diagonal(coord, 1, 1, board)
-    sw = possible_diagonal(coord, -1, -1, board)
-    se = possible_diagonal(coord, -1, 1, board)
-    possible_moves = nw + ne + sw + se
+    # coefficients in directions radiate diagonally from bishop position
+    possible_moves = []
+    x_directions = [[1, -1], [1, 1], [-1, -1], [-1, 1]]
+    x_directions.each { |coeffs| possible_moves += possible_diagonal(coord, coeffs[0], coeffs[1], board) }
+
     possible_moves
   end
 end
