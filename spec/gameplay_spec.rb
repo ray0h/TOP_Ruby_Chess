@@ -2,6 +2,7 @@ require './lib/gameplay'
 
 describe Gameplay do
   let(:game) { Gameplay.new }
+  let(:piece_types) { game.p1_pieces.flatten.map { |piece| piece.class.name } }
 
   context 'setting up' do
     it 'sets up two players' do
@@ -13,7 +14,22 @@ describe Gameplay do
       expect(game.board.class.name).to eql('Board')
     end
 
-    xit 'assigns a set of pieces to a player'
+    context 'player piece assignment' do
+      it 'assigns a set of 16 pieces to a player' do
+        expect(game.p1_pieces.flatten.length).to eql(16)
+        expect(game.p2_pieces.flatten.length).to eql(16)
+      end
+
+      it 'includes the appropriate types/numbers of each piece' do
+        expect(piece_types.count('King')).to eql(1)
+        expect(piece_types.count('Queen')).to eql(1)
+        expect(piece_types.count('Rook')).to eql(2)
+        expect(piece_types.count('Bishop')).to eql(2)
+        expect(piece_types.count('Knight')).to eql(2)
+        expect(piece_types.count('Pawn')).to eql(8)
+      end
+    end
+
     xit 'adds pieces to the board for a new game'
   end
 
