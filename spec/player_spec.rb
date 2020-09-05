@@ -2,6 +2,8 @@ require './lib/player'
 
 grid = Array.new(8) { Array.new(8) { nil } }
 
+# prevents methods that puts / print text from doing so when testing for returns
+# `yield` allows code wrapped in method to run
 def silence_output
   orig_stdout = $stdout
   $stdout = StringIO.new
@@ -24,7 +26,7 @@ describe 'Player - moves - picking initial square' do
   let(:board) { double }
   let(:wp1) { double }
   let(:bp1) { double }
- 
+
   before(:each) do
     grid[1][0] = wp1
     grid[6][0] = bp1
@@ -78,7 +80,7 @@ describe 'Player - moves - choosing final square to move piece' do
   let(:player1) { Player.new('player1') }
   let(:board) { double }
   let(:wp1) { double }
- 
+
   before(:each) do
     grid[1][0] = wp1
     allow(board).to receive(:grid).and_return(grid)
