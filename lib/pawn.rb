@@ -29,22 +29,15 @@ class Pawn < Piece
 
   private
 
-  # translate 'A2' type move from [row][col] coords
-  def parse_move(coords)
-    row = coords[0] + 1
-    col = (coords[1] + 65).chr
-    col + row.to_s
-  end
-
   def single_march(coords, board)
     march = @color == 'white' ? [coords[0] + 1, coords[1]] : [coords[0] - 1, coords[1]]
-    sngl_march = parse_move(march)
+    sngl_march = parse_square(march)
     !square_occupied?(sngl_march, board) && on_board?(sngl_march) ? sngl_march : false
   end
 
   def double_march(coords, board)
     march = @color == 'white' ? [coords[0] + 2, coords[1]] : [coords[0] - 2, coords[1]]
-    dbl_march = parse_move(march)
+    dbl_march = parse_square(march)
 
     single_march(coords, board) && !square_occupied?(dbl_march, board) ? dbl_march : false
   end
@@ -61,8 +54,8 @@ class Pawn < Piece
   end
 
   def valid_diagonals(coords, board)
-    diag1 = parse_move(get_diagonals(coords)[0])
-    diag2 = parse_move(get_diagonals(coords)[1])
+    diag1 = parse_square(get_diagonals(coords)[0])
+    diag2 = parse_square(get_diagonals(coords)[1])
     piece1 = square_occupied?(diag1, board)
     piece2 = square_occupied?(diag2, board)
     valid_diagonals = []
@@ -77,7 +70,7 @@ class Pawn < Piece
     if piece.ep_flag && piece.class.name == 'Pawn'
       square = piece.history.last
       coord = parse_coord(square)
-      possible = parse_move([coord[0] + offset, coord[1]])
+      possible = parse_square([coord[0] + offset, coord[1]])
     end
     possible
   end
@@ -87,8 +80,8 @@ class Pawn < Piece
     possible = false
     return false unless coords[0] == row
 
-    poss_piece1 = square_occupied?(parse_move([coords[0], coords[1] + 1]), board)
-    poss_piece2 = square_occupied?(parse_move([coords[0], coords[1] - 1]), board)
+    poss_piece1 = square_occupied?(parse_square([coords[0], coords[1] + 1]), board)
+    poss_piece2 = square_occupied?(parse_square([coords[0], coords[1] - 1]), board)
 
     possible = check_side_squares(poss_piece1) if poss_piece1
     possible = check_side_squares(poss_piece2) if poss_piece2

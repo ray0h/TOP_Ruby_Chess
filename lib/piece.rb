@@ -20,6 +20,13 @@ class Piece
     [row, col]
   end
 
+  # translate 'A2' type move from [row][col] coords
+  def parse_square(coord)
+    row = (coord[0] + 1).to_s
+    col = (coord[1] + 65).chr
+    col + row
+  end
+
   def first_move?
     @history.length < 2
   end
@@ -38,6 +45,8 @@ class Piece
   end
 
   def my_piece?(piece)
+    return false unless piece
+
     piece.color == @color
   end
 end

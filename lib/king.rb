@@ -13,19 +13,13 @@ class King < Piece
     current_square = @history.last
     current_coords = parse_coord(current_square)
     poss_moves = king_moves(current_coords, board) + castle_moves(board)
-    
+
     # king can not move to spot where he would be placed in check
     opp_moves = opponent_poss_moves(board)
     poss_moves.filter { |move| !opp_moves.include?(move) }
   end
 
   private
-
-  def parse_square(coord)
-    row = (coord[0] + 1).to_s
-    col = (coord[1] + 65).chr
-    col + row
-  end
 
   # functions related to normal king moves
   def one_space_move(coord, row_coef, col_coef, board)

@@ -17,12 +17,6 @@ class Rook < Piece
 
   private
 
-  def parse_square(coord)
-    row = (coord[0] + 1).to_s
-    col = (coord[1] + 65).chr
-    col + row
-  end
-
   def possible_line(coord, row_coef, col_coef, board)
     inc = 1
     line = []
