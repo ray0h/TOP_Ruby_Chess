@@ -14,8 +14,8 @@ class Gameplay
   def initialize
     @player1, @player2 = create_players
     @board = Board.new
-    @p1_pieces = assign_pieces('white', @player1.id)
-    @p2_pieces = assign_pieces('black', @player2.id)
+    @p1_pieces = assign_pieces(@player1.id, 'white')
+    @p2_pieces = assign_pieces(@player2.id, 'black')
     setup_board
   end
 
@@ -35,6 +35,7 @@ class Gameplay
     knight = [Knight.new(color, player_id), Knight.new(color, player_id)]
     pawn = []
     8.times { pawn.push(Pawn.new(color, player_id)) }
+    
     [king, queen, bishop, knight, rook, pawn]
   end
 

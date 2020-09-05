@@ -31,10 +31,13 @@ describe Gameplay do
     end
 
     it 'adds pieces to the board for a new game' do
+      game.board.print_board
       expect(game.board.grid[7].none?(nil)).to be_truthy
       expect(game.board.grid[6].none?(nil)).to be_truthy
       expect(game.board.grid[1].none?(nil)).to be_truthy
       expect(game.board.grid[0].none?(nil)).to be_truthy
+      expect(game.board.grid[7][4].color).to eql('black')
+      expect(game.board.grid[0][4].color).to eql('white')
     end
   end
 
