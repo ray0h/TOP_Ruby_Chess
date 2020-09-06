@@ -31,7 +31,6 @@ describe Gameplay do
     end
 
     it 'adds pieces to the board for a new game' do
-      game.board.print_board
       expect(game.board.grid[7].none?(nil)).to be_truthy
       expect(game.board.grid[6].none?(nil)).to be_truthy
       expect(game.board.grid[1].none?(nil)).to be_truthy
@@ -42,6 +41,16 @@ describe Gameplay do
   end
 
   context 'basic gameplay' do
+    it 'reflects a player move on the board' do
+      expect(game.board.grid[1][3]).to be_truthy
+      expect(game.board.grid[3][3]).to be_nil
+      allow(STDIN).to receive(:gets).and_return('D2', 'D4')
+      string = "player1, pick a square: player1, pick a square to move to, or press 'XX' to cancel move: "
+      expect { game.play }.to output(string).to_stdout
+      expect(game.board.grid[1][3]).to be_nil
+      expect(game.board.grid[3][3]).to be_truthy
+    end
+
     xit 'removes captured pieces'
     xit 'recognizes checks'
     xit 'recognizes checkmates'
