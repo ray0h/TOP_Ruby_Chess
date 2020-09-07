@@ -14,14 +14,15 @@ class Gameplay
   def initialize
     @player1, @player2 = create_players
     @board = Board.new
-    @p1_pieces = assign_pieces(@player1.id, 'white')
-    @p2_pieces = assign_pieces(@player2.id, 'black')
-    setup_board
+    @p1_pieces = create_pieces(@player1.id, 'white')
+    @p2_pieces = create_pieces(@player2.id, 'black')
+    setup_board(@p1_pieces, @p2_pieces, @board)
   end
 
   def play
     checkmate = false
     stalemate = false
+    @board.print_board
 
     until checkmate || stalemate
       p1_moves = get_moves(@player1, @board)
@@ -48,15 +49,21 @@ class Gameplay
     p_moves
   end
 
-  def move_piece(p_moves, opp_pieces, board)
-    # check if piece is captured
+  def update_move_history(p_moves, board)
     my_piece = get_piece(p_moves[0], board)
     my_piece.history.push(p_moves[1])
-    opp_piece = square_occupied?(p_moves[1], @board)
+  end
+
+  def move_piece(p_moves, opp_pieces, board)
+    # update move history
+    update_move_history(p_moves, board)
+    # check if opponent piece is captured
+    opp_piece = square_occupied?(p_moves[1], board)
     # remove opp piece from board/piece list
     opp_pieces.delete_at(opp_pieces.find_index { |piece| piece.class.name == opp_piece.class.name }) if opp_piece
-    # move piece
+    # move piece and print out board
     board.move_piece(p_moves[0], p_moves[1])
+    board.print_board
   end
 
   def parse_coord(square)
@@ -89,7 +96,7 @@ class Gameplay
     [player1, player2]
   end
 
-  def assign_pieces(player_id, color)
+  def create_pieces(player_id, color)
     backrow = [Rook.new(color, player_id), Knight.new(color, player_id), Bishop.new(color, player_id)]
     backrow.push(Queen.new(color, player_id))
     backrow.push(King.new(color, player_id))
@@ -100,19 +107,18 @@ class Gameplay
     backrow + frontrow
   end
 
-  def setup_pieces(pieces, back_row, front_row)
-    # back row
+  def setup_pieces(pieces, back_row, front_row, board)
     0.upto(7) do |col|
-      @board.grid[back_row][col] = pieces[col]
+      board.grid[back_row][col] = pieces[col]
       pieces[col].history.push(parse_square([back_row, col]))
-      @board.grid[front_row][col] = pieces[col + 8]
+      board.grid[front_row][col] = pieces[col + 8]
       pieces[col + 8].history.push(parse_square([front_row, col]))
     end
   end
 
-  def setup_board
-    setup_pieces(@p2_pieces, 7, 6)
-    setup_pieces(@p1_pieces, 0, 1)
+  def setup_board(p1_pieces, p2_pieces, board)
+    setup_pieces(p1_pieces, 0, 1, board)
+    setup_pieces(p2_pieces, 7, 6, board)
   end
 end
 
