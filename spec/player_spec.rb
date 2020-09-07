@@ -41,8 +41,8 @@ describe 'Player - moves - picking initial square' do
     expect { player1.start_move(board) }.to output(std_puts).to_stdout
   end
 
-  it 'rejects if not a valid square length' do
-    allow(STDIN).to receive(:gets).and_return('Q', 'B15', 'A2')
+  it 'rejects if not a valid square length (or not equal to X or Q)' do
+    allow(STDIN).to receive(:gets).and_return('Z', 'B15', 'A2')
     string = std_puts
     2.times { string += "Enter a valid square\n#{std_puts}" }
     expect { player1.start_move(board) }.to output(string).to_stdout
@@ -86,7 +86,7 @@ describe 'Player - moves - choosing final square to move piece' do
     allow(board).to receive(:grid).and_return(grid)
     allow(wp1).to receive(:possible_moves).and_return(%w[A3 A4])
   end
-  std_puts = "player1, pick a square to move to, or press 'XX' to cancel move: "
+  std_puts = "player1, pick a square to move to, or press 'X' to cancel move: "
 
   it 'asks for a final square to move piece to' do
     allow(STDIN).to receive(:gets).and_return('A3')
@@ -101,10 +101,9 @@ describe 'Player - moves - choosing final square to move piece' do
 
   it 'can cancel move and start again' do
     silence_output do
-      allow(STDIN).to receive(:gets).and_return('XX')
-      string = std_puts + "Canceling move\n"
-      expect { player1.finish_move('A2', board) }.to output(string).to_stdout
-      expect(player1.finish_move('A2', board)).to eql('XX')
+      allow(STDIN).to receive(:gets).and_return('X')
+      expect { player1.finish_move('A2', board) }.to output(std_puts).to_stdout
+      expect(player1.finish_move('A2', board)).to eql('X')
     end
   end
 
@@ -121,8 +120,8 @@ describe 'Player - moves - choosing final square to move piece' do
     end
   end
 
-  it 'rejects if not a valid square length' do
-    allow(STDIN).to receive(:gets).and_return('Q', 'B15', 'A3')
+  it 'rejects if not a valid square length (or not equal to X or Q' do
+    allow(STDIN).to receive(:gets).and_return('Z', 'B15', 'A3')
     string = std_puts
     2.times { string += "Enter a valid square\n#{std_puts}" }
     expect { player1.finish_move('A2', board) }.to output(string).to_stdout

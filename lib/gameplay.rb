@@ -20,17 +20,67 @@ class Gameplay
   end
 
   def play
-    init_move = @player1.start_move(@board)
-    moves = @player1.finish_move(init_move, @board)
-    board.move_piece(moves[0], moves[1])
+    checkmate = false
+    stalemate = false
+
+    until checkmate || stalemate
+      p1_moves = get_moves(@player1, @board)
+      break if p1_moves == 'Q'
+
+      move_piece(p1_moves, @p2_pieces, @board)
+
+      p2_moves = get_moves(@player2, @board)
+      break if p2_moves == 'Q'
+
+      move_piece(p2_moves, @p1_pieces, @board)
+    end
   end
 
   private
+
+  def get_moves(player, board)
+    p_moves = 'X'
+    while p_moves == 'X'
+      init_move = player.start_move(board)
+      p_moves = player.finish_move(init_move, board)
+      puts 'Canceling move' if p_moves == 'X'
+    end
+    p_moves
+  end
+
+  def move_piece(p_moves, opp_pieces, board)
+    # check if piece is captured
+    my_piece = get_piece(p_moves[0], board)
+    my_piece.history.push(p_moves[1])
+    opp_piece = square_occupied?(p_moves[1], @board)
+    # remove opp piece from board/piece list
+    opp_pieces.delete_at(opp_pieces.find_index { |piece| piece.class.name == opp_piece.class.name }) if opp_piece
+    # move piece
+    board.move_piece(p_moves[0], p_moves[1])
+  end
+
+  def parse_coord(square)
+    square = square.split('')
+    row = square[1].to_i - 1
+    col = square[0].bytes[0] - 65
+    [row, col]
+  end
 
   def parse_square(coord)
     row = (coord[0] + 1).to_s
     col = (coord[1] + 65).chr
     col + row
+  end
+
+  def get_piece(square, board)
+    coord = parse_coord(square)
+    board.grid[coord[0]][coord[1]]
+  end
+
+  def square_occupied?(square, board)
+    coord = parse_coord(square)
+    space = board.grid[coord[0]][coord[1]]
+    space.nil? ? false : space
   end
 
   def create_players
@@ -40,44 +90,23 @@ class Gameplay
   end
 
   def assign_pieces(player_id, color)
-    king = King.new(color, player_id)
-    queen = Queen.new(color, player_id)
-    rook = [Rook.new(color, player_id), Rook.new(color, player_id)]
-    bishop = [Bishop.new(color, player_id), Bishop.new(color, player_id)]
-    knight = [Knight.new(color, player_id), Knight.new(color, player_id)]
-    pawn = []
-    8.times { pawn.push(Pawn.new(color, player_id)) }
+    backrow = [Rook.new(color, player_id), Knight.new(color, player_id), Bishop.new(color, player_id)]
+    backrow.push(Queen.new(color, player_id))
+    backrow.push(King.new(color, player_id))
+    backrow += [Bishop.new(color, player_id), Knight.new(color, player_id), Rook.new(color, player_id)]
+    frontrow = []
+    8.times { frontrow.push(Pawn.new(color, player_id)) }
 
-    [king, queen, bishop, knight, rook, pawn]
-  end
-
-  def place_single(piece, row, square)
-    @board.grid[row][square] = piece
-    piece.history.push(parse_square([square, row]))
-  end
-
-  def place_pair(pair, row, inc_from_end)
-    @board.grid[row][0 + inc_from_end] = pair[0]
-    @board.grid[row][7 - inc_from_end] = pair[1]
-    pair[0].history.push(parse_square([0 + inc_from_end, row]))
-    pair[1].history.push(parse_square([7 - inc_from_end, row]))
+    backrow + frontrow
   end
 
   def setup_pieces(pieces, back_row, front_row)
-    # king
-    place_single(pieces[0], back_row, 4)
-    # queen
-    place_single(pieces[1], back_row, 3)
-    # bishops
-    place_pair(pieces[2], back_row, 2)
-    # knights
-    place_pair(pieces[3], back_row, 1)
-    # rooks
-    place_pair(pieces[4], back_row, 0)
-    # pawns
-    0.upto(7) do |i|
-      @board.grid[front_row][i] = pieces[5][i]
-      pieces[5][i].history.push(parse_square([front_row, i]))
+    # back row
+    0.upto(7) do |col|
+      @board.grid[back_row][col] = pieces[col]
+      pieces[col].history.push(parse_square([back_row, col]))
+      @board.grid[front_row][col] = pieces[col + 8]
+      pieces[col + 8].history.push(parse_square([front_row, col]))
     end
   end
 
