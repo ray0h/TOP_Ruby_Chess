@@ -8,6 +8,10 @@ class Piece
     @opponent = @color == 'white' ? 'black ' : 'white'
   end
 
+  def first_move?
+    @history.length < 2
+  end
+
   private
 
   # methods to help define general movement logic
@@ -25,10 +29,6 @@ class Piece
     row = (coord[0] + 1).to_s
     col = (coord[1] + 65).chr
     col + row
-  end
-
-  def first_move?
-    @history.length < 2
   end
 
   def on_board?(square)

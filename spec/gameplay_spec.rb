@@ -51,24 +51,33 @@ describe Gameplay do
 
   context 'basic gameplay' do
     it 'reflects a player move on the board' do
-      expect(game.board.grid[1][3]).to be_truthy
-      expect(game.board.grid[3][3]).to be_nil
-      allow(STDIN).to receive(:gets).and_return('D2', 'D4', 'Q')
-      string = "player1, pick a square: player1, pick a square to move to, or press 'X' to cancel move: player2, pick a square: "
-      expect { game.play }.to output(string).to_stdout
-      expect(game.board.grid[1][3]).to be_nil
-      expect(game.board.grid[3][3]).to be_truthy
+      silence_output do
+        expect(game.board.grid[1][3]).to be_truthy
+        expect(game.board.grid[3][3]).to be_nil
+        allow(STDIN).to receive(:gets).and_return('D2', 'D4', 'Q')
+        game.play
+        expect(game.board.grid[1][3]).to be_nil
+        expect(game.board.grid[3][3]).to be_truthy
+      end
     end
 
     it 'removes captured pieces' do
       silence_output do
         allow(STDIN).to receive(:gets).and_return('D2', 'D4', 'E7', 'E5', 'D4', 'E5', 'Q')
         game.play
-        expect(game.p2_pieces.flatten.length).to eql(15)
+        expect(game.p2_pieces.length).to eql(15)
       end
     end
 
-    xit 'recognizes checks'
+    it 'recognizes checks' do
+      silence_output do
+        expect(game.p1_check).to be_falsy
+        allow(STDIN).to receive(:gets).and_return('F2', 'F4', 'E7', 'E6', 'B1', 'C3', 'D8', 'H4', 'Q')
+        game.play
+        expect(game.p1_check).to be_truthy
+      end
+    end
+
     xit 'recognizes checkmates'
     xit 'recognizes stalemates'
   end

@@ -5,9 +5,6 @@
 # puts wp1.symbol
 # puts wp1.class.name
 
-require_relative './player'
-require_relative './board'
-board = Board.new
-board.grid[1][0] = 'pawn'
-player1 = Player.new('player1')
-player1.start_move(board)
+require_relative './gameplay'
+game = Gameplay.new
+game.play

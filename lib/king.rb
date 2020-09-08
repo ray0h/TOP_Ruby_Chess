@@ -51,7 +51,7 @@ class King < Piece
   def opponent_poss_moves(board)
     poss_moves = []
     opp_pieces = get_opponent_pieces(board)
-    opp_pieces.each { |piece| poss_moves += piece.possible_moves }
+    opp_pieces.each { |piece| poss_moves += piece.possible_moves(board) }
     poss_moves.uniq
   end
 
@@ -61,7 +61,7 @@ class King < Piece
     row = king_coord[0]
     min = (rook_coord[1] == 7 ? king_coord[1] : rook_coord[1]) + 1
     max = (rook_coord[1] == 7 ? rook_coord[1] : king_coord[1]) - 1
-    min.upto(max) { |col| squares.push(parse_square(board.grid[row, col])) }
+    min.upto(max) { |col| squares.push(parse_square([row, col])) }
     squares
   end
 
