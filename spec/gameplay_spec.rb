@@ -78,6 +78,14 @@ describe Gameplay do
       end
     end
 
+    it 'will not allow player move if king remains in check' do
+      silence_output do
+        allow(STDIN).to receive(:gets).and_return('F2', 'F4', 'E7', 'E6', 'B1', 'C3', 'D8', 'H4', 'A2', 'A3', 'Q')
+        game.play
+        expect(game.board.grid[2][0]).to be_nil
+      end
+    end
+
     xit 'recognizes checkmates'
     xit 'recognizes stalemates'
   end

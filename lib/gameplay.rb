@@ -7,6 +7,7 @@ require_relative './bishop'
 require_relative './rook'
 require_relative './queen'
 require_relative './king'
+require 'pry'
 
 # Gameplay class
 class Gameplay
@@ -37,16 +38,6 @@ class Gameplay
 
   private
 
-  def check?(player_pieces, opponent_pieces, board)
-    opp_king_square = opponent_pieces[4].history.last
-    # piece = get_piece(p_moves[1], board)
-    player_pieces.each do |piece|
-      next if piece.class.name == 'King'
-      return true if piece.possible_moves(board).include?(opp_king_square)
-    end
-    false
-  end
-
   def get_moves(player, board)
     p_moves = 'X'
     while p_moves == 'X'
@@ -64,9 +55,10 @@ class Gameplay
 
   def capture_piece(p_moves, opp_pieces, board)
     # check if opponent piece is in the square
+    puts 'capturing piece?'
     opp_piece = square_occupied?(p_moves[1], board)
     # capture and remove piece
-    opp_index = opp_pieces.find_index { |piece| piece.class.name == opp_piece.class.name } if opp_piece
+    opp_index = opp_pieces.find_index { |piece| piece.history.last == opp_piece.history.last } if opp_piece
     opp_pieces.delete_at(opp_index) if opp_piece
   end
 
@@ -77,13 +69,50 @@ class Gameplay
     board.print_board
   end
 
+  # opponent's king in check?
+  def check?(player_pieces, opponent_pieces, board)
+    opp_king_square = opponent_pieces[4].history.last
+    # piece = get_piece(p_moves[1], board)
+    player_pieces.each do |piece|
+      next if piece.class.name == 'King'
+      return true if piece.possible_moves(board).include?(opp_king_square)
+    end
+    false
+  end
+
+  def set_check(player, check)
+    if check
+      player == 'player1' ? @p2_check = true : @p1_check = true
+    else
+      player == 'player1' ? @p2_check = false : @p1_check = false
+    end
+  end
+
+  def still_in_check?(p_moves, player_pieces, opp_pieces, board)
+    opp_piece = get_piece(p_moves[1], board)
+
+    board.move_piece(p_moves[0], p_moves[1])
+    still_in_check = check?(opp_pieces, player_pieces, board)
+    board.move_piece(p_moves[1], p_moves[0])
+    board.add_piece(opp_piece, p_moves[1]) if opp_piece
+    still_in_check
+  end
+
   def player_turn(player, player_pieces, opp_pieces, board)
-    p_moves = get_moves(player, board)
-    return p_moves if p_moves == 'Q'
+    p_moves = ''
+    loop do
+      p_moves = get_moves(player, board)
+      return p_moves if p_moves == 'Q'
+
+      break unless still_in_check?(p_moves, player_pieces, opp_pieces, board)
+
+      puts 'King is still in check, please make another move'
+    end
 
     move_piece(p_moves, opp_pieces, board)
-    puts('Check') if check?(player_pieces, opp_pieces, board)
-    (player == 'player1' ? @p2_check = true : @p1_check = true) if check?(player_pieces, opp_pieces, board)
+    check = check?(player_pieces, opp_pieces, board)
+    puts('Check') if check
+    set_check(player, check)
   end
 
   def parse_coord(square)
@@ -142,4 +171,3 @@ class Gameplay
     setup_pieces(p2_pieces, 7, 6, board)
   end
 end
-
