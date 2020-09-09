@@ -7,14 +7,33 @@ describe SetupBoard do
   let(:board) { Board.new }
   let(:setup) { SetupBoard.new }
 
-  it 'has method to set up a new/fresh chessboard' do
-    setup.new_game(player1, player2, board)
-    expect(board.grid[7].none?(nil)).to be_truthy
-    expect(board.grid[6].none?(nil)).to be_truthy
-    expect(board.grid[1].none?(nil)).to be_truthy
-    expect(board.grid[0].none?(nil)).to be_truthy
-    expect(board.grid[7][4].color).to eql('black')
-    expect(board.grid[0][4].color).to eql('white')
+  context 'new board' do
+    it 'has method to set up a new/fresh chessboard' do
+      setup.new_game(player1, player2, board)
+      expect(board.grid[7].none?(nil)).to be_truthy
+      expect(board.grid[6].none?(nil)).to be_truthy
+      expect(board.grid[1].none?(nil)).to be_truthy
+      expect(board.grid[0].none?(nil)).to be_truthy
+      expect(board.grid[7][4].color).to eql('black')
+      expect(board.grid[0][4].color).to eql('white')
+    end
+
+    it 'assigns a set of 16 pieces to a player' do
+      p1_pieces, p2_pieces = setup.new_game(player1, player2, board)
+      expect(p1_pieces.length).to eql(16)
+      expect(p2_pieces.length).to eql(16)
+    end
+
+    it 'includes the appropriate types/numbers of each piece' do
+      p1_pieces, p2_pieces = setup.new_game(player1, player2, board)
+      piece_types = p1_pieces.map(&:class)
+      expect(piece_types.count(King)).to eql(1)
+      expect(piece_types.count(Queen)).to eql(1)
+      expect(piece_types.count(Rook)).to eql(2)
+      expect(piece_types.count(Bishop)).to eql(2)
+      expect(piece_types.count(Knight)).to eql(2)
+      expect(piece_types.count(Pawn)).to eql(8)
+    end
   end
 
   let(:wkg) { double('King', color: 'white', history: ['E1']) }
