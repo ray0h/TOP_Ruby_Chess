@@ -26,6 +26,7 @@ class SetupBoard
       square = piece.history.last
       board.add_piece(piece, square)
     end
+    [p1_pieces, p2_pieces]
   end
 
   private

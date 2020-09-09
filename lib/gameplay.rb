@@ -21,11 +21,14 @@ class Gameplay
   end
 
   def setup_in_progress(p1_pieces, p2_pieces)
-    @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
+    @p1_pieces, @p2_pieces = @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
+    # update check state if a player was in check
+    set_check('player1', opp_check?(@p1_pieces, @p2_pieces, @board))
+    set_check('player2', opp_check?(@p2_pieces, @p1_pieces, @board))
   end
 
   def play
-    checkmate = false
+    checkmate = checkmate?(@player2, @p2_pieces, @board)
     stalemate = false
     @board.print_board
 
@@ -36,9 +39,11 @@ class Gameplay
 
       p2_turn = player_turn(@player2, @p2_pieces, @p1_pieces, @board)
       break if p2_turn == 'Q'
+
       checkmate = checkmate?(@player1, @p1_pieces, @board)
     end
-    puts 'Game over'
+    puts 'Checkmate!, Game over' if checkmate
+    puts 'Stalemate, Game over' if stalemate
   end
 
   private
@@ -60,7 +65,6 @@ class Gameplay
 
   def capture_piece(p_moves, opp_pieces, board)
     # check if opponent piece is in the square
-    puts 'capturing piece?'
     opp_piece = square_occupied?(p_moves[1], board)
     # capture and remove piece
     opp_index = opp_pieces.find_index { |piece| piece.history.last == opp_piece.history.last } if opp_piece
@@ -75,10 +79,10 @@ class Gameplay
   end
 
   # opponent's king in check?
-  def check?(player_pieces, opponent_pieces, board)
-    opp_king_square = opponent_pieces.select { |piece| piece.class.name == 'King' }[0].history.last
+  def opp_check?(player_pieces, opponent_pieces, board)
+    opp_king_square = opponent_pieces.select { |piece| piece.class == King }[0].history.last
     player_pieces.each do |piece|
-      next if piece.class.name == 'King'
+      next if piece.class == King
       return true if piece.possible_moves(board).include?(opp_king_square)
     end
     false
@@ -86,10 +90,11 @@ class Gameplay
 
   def checkmate?(opponent, opponent_pieces, board)
     check = opponent == @player1 ? @p1_check : @p2_check
-    opp_king = opponent_pieces.select { |piece| piece.class.name == 'King' }[0]
+    opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
     opp_king.possible_moves(board).length.zero? && check
   end
 
+  # set when opponent in check
   def set_check(player, check)
     if check
       player == 'player1' ? @p2_check = true : @p1_check = true
@@ -102,7 +107,7 @@ class Gameplay
     opp_piece = get_piece(p_moves[1], board)
 
     board.move_piece(p_moves[0], p_moves[1])
-    still_in_check = check?(opp_pieces, player_pieces, board)
+    still_in_check = opp_check?(opp_pieces, player_pieces, board)
     board.move_piece(p_moves[1], p_moves[0])
     board.add_piece(opp_piece, p_moves[1]) if opp_piece
     still_in_check
@@ -120,7 +125,7 @@ class Gameplay
     end
 
     move_piece(p_moves, opp_pieces, board)
-    check = check?(player_pieces, opp_pieces, board)
+    check = opp_check?(player_pieces, opp_pieces, board)
     puts('Check') if check
     set_check(player, check)
   end
