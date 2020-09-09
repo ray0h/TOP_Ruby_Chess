@@ -17,7 +17,7 @@ class SetupBoard
     [p1_pieces, p2_pieces]
   end
 
-  def in_progress_game(p1_pieces, p2_pieces,board)
+  def in_progress_game(p1_pieces, p2_pieces, board)
     p1_pieces.each do |piece|
       square = piece.history.last
       board.add_piece(piece, square)
