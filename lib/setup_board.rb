@@ -1,4 +1,3 @@
-require_relative './board'
 require_relative './piece'
 require_relative './pawn'
 require_relative './knight'
@@ -9,21 +8,34 @@ require_relative './king'
 
 # setting up chessboard
 class SetupBoard
-  attr_reader :p1_pieces, :p2_pieces, :board
-  def initialize(p1_pieces, p2_pieces, board)
-    @p1_pieces = p1_pieces
-    @p2_pieces = p2_pieces
-    @board = board
+  def new_game(player1, player2, board)
+    p1_pieces = create_new_pieces(player1.id, 'white')
+    p2_pieces = create_new_pieces(player2.id, 'black')
+
+    setup_pieces(p1_pieces, 0, 1, board)
+    setup_pieces(p2_pieces, 7, 6, board)
+    [p1_pieces, p2_pieces]
   end
 
-  def new_game
-    setup_pieces(@p1_pieces, 0, 1, @board)
-    setup_pieces(@p2_pieces, 7, 6, @board)
+  def in_progress_game(p1_pieces, p2_pieces,board)
+    p1_pieces.each do |piece|
+      square = piece.history.last
+      board.add_piece(piece, square)
+    end
+    p2_pieces.each do |piece|
+      square = piece.history.last
+      board.add_piece(piece, square)
+    end
   end
 
-  # def in_progress_game; end
-  
   private
+
+  def parse_coord(square)
+    square = square.split('')
+    row = square[1].to_i - 1
+    col = square[0].bytes[0] - 65
+    [row, col]
+  end
 
   def parse_square(coord)
     row = (coord[0] + 1).to_s
@@ -31,13 +43,26 @@ class SetupBoard
     col + row
   end
 
+  def create_new_pieces(player_id, color)
+    backrow = [Rook.new(color, player_id), Knight.new(color, player_id), Bishop.new(color, player_id)]
+    backrow.push(Queen.new(color, player_id))
+    backrow.push(King.new(color, player_id))
+    backrow += [Bishop.new(color, player_id), Knight.new(color, player_id), Rook.new(color, player_id)]
+    frontrow = []
+    8.times { frontrow.push(Pawn.new(color, player_id)) }
+
+    backrow + frontrow
+  end
+
   def setup_pieces(pieces, back_row, front_row, board)
     0.upto(7) do |col|
-      back_half = col + 8
-      board.grid[back_row][col] = pieces[col]
-      pieces[col].history.push(parse_square([back_row, col]))
-      board.grid[front_row][col] = pieces[back_half]
-      pieces[back_half].history.push(parse_square([front_row, col]))
+      pawns = col + 8
+      back_square = parse_square([back_row, col])
+      front_square = parse_square([front_row, col])
+      board.add_piece(pieces[col], back_square)
+      pieces[col].history.push(back_square)
+      board.add_piece(pieces[pawns], front_square)
+      pieces[pawns].history.push(front_square)
     end
   end
 end

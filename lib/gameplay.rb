@@ -1,12 +1,6 @@
 require_relative './player'
 require_relative './board'
-require_relative './piece'
-require_relative './pawn'
-require_relative './knight'
-require_relative './bishop'
-require_relative './rook'
-require_relative './queen'
-require_relative './king'
+require_relative './setup_board'
 require 'pry'
 
 # Gameplay class
@@ -14,12 +8,20 @@ class Gameplay
   attr_reader :player1, :player2, :board, :p1_pieces, :p2_pieces, :p1_check, :p2_check
   def initialize
     @player1, @player2 = create_players
-    @board = Board.new
-    @p1_pieces = create_pieces(@player1.id, 'white')
-    @p2_pieces = create_pieces(@player2.id, 'black')
+    @p1_pieces = []
+    @p2_pieces = []
     @p1_check = false
     @p2_check = false
-    setup_board(@p1_pieces, @p2_pieces, @board)
+    @board = Board.new
+    @setup_board = SetupBoard.new
+  end
+
+  def setup_new
+    @p1_pieces, @p2_pieces = @setup_board.new_game(@player1, @player2, @board)
+  end
+
+  def setup_in_progress(p1_pieces, p2_pieces)
+    @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
   end
 
   def play
@@ -29,11 +31,14 @@ class Gameplay
 
     until checkmate || stalemate
       p1_turn = player_turn(@player1, @p1_pieces, @p2_pieces, @board)
-      break if p1_turn == 'Q'
+      checkmate = checkmate?(@player2, @p2_pieces, @board)
+      break if p1_turn == 'Q' || checkmate
 
       p2_turn = player_turn(@player2, @p2_pieces, @p1_pieces, @board)
       break if p2_turn == 'Q'
+      checkmate = checkmate?(@player1, @p1_pieces, @board)
     end
+    puts 'Game over'
   end
 
   private
@@ -71,13 +76,18 @@ class Gameplay
 
   # opponent's king in check?
   def check?(player_pieces, opponent_pieces, board)
-    opp_king_square = opponent_pieces[4].history.last
-    # piece = get_piece(p_moves[1], board)
+    opp_king_square = opponent_pieces.select { |piece| piece.class.name == 'King' }[0].history.last
     player_pieces.each do |piece|
       next if piece.class.name == 'King'
       return true if piece.possible_moves(board).include?(opp_king_square)
     end
     false
+  end
+
+  def checkmate?(opponent, opponent_pieces, board)
+    check = opponent == @player1 ? @p1_check : @p2_check
+    opp_king = opponent_pieces.select { |piece| piece.class.name == 'King' }[0]
+    opp_king.possible_moves(board).length.zero? && check
   end
 
   def set_check(player, check)
@@ -145,29 +155,4 @@ class Gameplay
     [player1, player2]
   end
 
-  def create_pieces(player_id, color)
-    backrow = [Rook.new(color, player_id), Knight.new(color, player_id), Bishop.new(color, player_id)]
-    backrow.push(Queen.new(color, player_id))
-    backrow.push(King.new(color, player_id))
-    backrow += [Bishop.new(color, player_id), Knight.new(color, player_id), Rook.new(color, player_id)]
-    frontrow = []
-    8.times { frontrow.push(Pawn.new(color, player_id)) }
-
-    backrow + frontrow
-  end
-
-  def setup_pieces(pieces, back_row, front_row, board)
-    0.upto(7) do |col|
-      back_half = col + 8
-      board.grid[back_row][col] = pieces[col]
-      pieces[col].history.push(parse_square([back_row, col]))
-      board.grid[front_row][col] = pieces[back_half]
-      pieces[back_half].history.push(parse_square([front_row, col]))
-    end
-  end
-
-  def setup_board(p1_pieces, p2_pieces, board)
-    setup_pieces(p1_pieces, 0, 1, board)
-    setup_pieces(p2_pieces, 7, 6, board)
-  end
 end

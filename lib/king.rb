@@ -51,12 +51,16 @@ class King < Piece
   def opponent_poss_moves(board)
     poss_moves = []
     opp_pieces = get_opponent_pieces(board)
-    opp_pieces.each { |piece| poss_moves += piece.possible_moves(board) }
+    opp_pieces.each do |piece|
+      coords = parse_coord(piece.history.last)
+      moves = piece.class.name == 'King' ? king_moves(coords, board) : piece.possible_moves(board)
+      poss_moves += moves
+    end
     poss_moves.uniq
   end
 
   # functions related to castling
-  def between_rook_king(king_coord, rook_coord, board)
+  def between_rook_king(king_coord, rook_coord)
     squares = []
     row = king_coord[0]
     min = (rook_coord[1] == 7 ? king_coord[1] : rook_coord[1]) + 1
@@ -65,16 +69,16 @@ class King < Piece
     squares
   end
 
-  def get_between_squares(rook, board)
+  def get_between_squares(rook)
     king_coord = parse_coord(@history.last)
     rook_coord = parse_coord(rook.history.last)
 
-    between_squares = between_rook_king(king_coord, rook_coord, board)
+    between_squares = between_rook_king(king_coord, rook_coord)
     between_squares
   end
 
   def between_squares_empty?(rook, board)
-    btwn_squares = get_between_squares(rook, board)
+    btwn_squares = get_between_squares(rook)
 
     status = btwn_squares.map { |square| square_occupied?(square, board) }
     status.all? { |square| square == false }
@@ -82,7 +86,7 @@ class King < Piece
 
   def no_check_between_squares?(rook, board)
     opp_moves = opponent_poss_moves(board)
-    btwn_squares = get_between_squares(rook, board)
+    btwn_squares = get_between_squares(rook)
     status = btwn_squares.map { |square| opp_moves.include?(square) }
     status.all? { |square| square == false }
   end
