@@ -25,22 +25,27 @@ class Gameplay
     # update check state if a player was in check
     set_check('player1', opp_check?(@p1_pieces, @p2_pieces, @board))
     set_check('player2', opp_check?(@p2_pieces, @p1_pieces, @board))
+    print "check1: #{@p1_check}, check2: #{@p2_check}"
   end
 
   def play
     checkmate = checkmate?(@player2, @p2_pieces, @board)
-    stalemate = false
+    stalemate = stalemate?(@player2, @p2_pieces, @board)
     @board.print_board
+    print "stalemate #{stalemate}"
 
     until checkmate || stalemate
       p1_turn = player_turn(@player1, @p1_pieces, @p2_pieces, @board)
       checkmate = checkmate?(@player2, @p2_pieces, @board)
-      break if p1_turn == 'Q' || checkmate
+      stalemate = stalemate?(@player2, @p2_pieces, @board)
+
+      break if p1_turn == 'Q' || checkmate || stalemate
 
       p2_turn = player_turn(@player2, @p2_pieces, @p1_pieces, @board)
       break if p2_turn == 'Q'
 
       checkmate = checkmate?(@player1, @p1_pieces, @board)
+      stalemate = stalemate?(@player1, @p1_pieces, @board)
     end
     puts 'Checkmate!, Game over' if checkmate
     puts 'Stalemate, Game over' if stalemate
@@ -92,6 +97,14 @@ class Gameplay
     check = opponent == @player1 ? @p1_check : @p2_check
     opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
     opp_king.possible_moves(board).length.zero? && check
+  end
+
+  def stalemate?(opponent, opponent_pieces, board)
+    check = opponent == @player1 ? @p1_check : @p2_check
+    opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
+    puts !check
+    puts opp_king.possible_moves(board).length.zero?
+    opp_king.possible_moves(board).length.zero? && !check
   end
 
   # set when opponent in check

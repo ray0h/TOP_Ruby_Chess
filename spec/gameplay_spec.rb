@@ -91,30 +91,49 @@ describe Gameplay do
         game.play
         expect(game.board.grid[2][0]).to be_nil
         expect(game.board.grid[1][0]).to be_truthy
-
       end
     end
-    let(:bkg) { double('King', color: 'black', history: ['H8'], symbol: "\u265A") }
-    let(:wkg) { double('King', color: 'white', history: ['F7'], symbol: "\u2654") }
-    let(:wr1) { double('Rook', color: 'white', history: ['H1'], symbol: "\u2656") }
-    let(:board) { double }
-    it 'recognizes checkmates' do
-      silence_output do
-        allow(bkg).to receive(:possible_moves).and_return([])
-        allow(wkg).to receive(:possible_moves).and_return(%w[E8 F8 G8 E7 G7 E6 F6 G6])
-        allow(wr1).to receive(:possible_moves).and_return(%w[A1 B1 C1 D1 E1 F1 G1 H2 H3 H4 H5 H6 H7 H8])
-        allow(bkg).to receive(:class).and_return(King)
-        allow(wkg).to receive(:class).and_return(King)
+    
+    context 'checkmates' do
+      let(:bkg) { double('King', color: 'black', history: ['H8'], symbol: "\u265A") }
+      let(:wkg) { double('King', color: 'white', history: ['F7'], symbol: "\u2654") }
+      let(:wr1) { double('Rook', color: 'white', history: ['H1'], symbol: "\u2656") }
+      it 'recognizes checkmates' do
+        silence_output do
+          allow(bkg).to receive(:possible_moves).and_return([])
+          allow(wkg).to receive(:possible_moves).and_return(%w[E8 F8 G8 E7 G7 E6 F6 G6])
+          allow(wr1).to receive(:possible_moves).and_return(%w[A1 B1 C1 D1 E1 F1 G1 H2 H3 H4 H5 H6 H7 H8])
+          allow(bkg).to receive(:class).and_return(King)
+          allow(wkg).to receive(:class).and_return(King)
 
-        p1_pieces = [wkg, wr1]
-        p2_pieces = [bkg]
-        game.setup_in_progress(p1_pieces, p2_pieces)
-        game.play
-        expect(game.p2_check).to be_truthy
+          p1_pieces = [wkg, wr1]
+          p2_pieces = [bkg]
+          game.setup_in_progress(p1_pieces, p2_pieces)
+          game.play
+          expect(game.p2_check).to be_truthy
+        end
       end
     end
 
-    xit 'recognizes stalemates'
+    context 'stalemates' do
+      let(:wkg) { double('King', color: 'white', history: ['H3'], symbol: "\u265A") }
+      let(:bkg) { double('King', color: 'black', history: ['H1'], symbol: "\u2654") }
+      let(:wr1) { double('Rook', color: 'white', history: ['G8'], symbol: "\u265C") }
+      it 'recognizes stalemates' do
+        silence_output do
+          allow(bkg).to receive(:possible_moves).and_return([])
+          allow(wkg).to receive(:possible_moves).and_return(%w[H2 G2 G3 G4 H4])
+          allow(wr1).to receive(:possible_moves).and_return(%w[A8 B8 C8 D8 E8 F8 H8 G7 G6 G5 G4 G3 G2 G1])
+          allow(bkg).to receive(:class).and_return(King)
+          allow(wkg).to receive(:class).and_return(King)
+          p1_pieces = [wkg, wr1]
+          p2_pieces = [bkg]
+          game.setup_in_progress(p1_pieces, p2_pieces)
+          game.play
+          expect(game.p2_check).to be_falsy
+        end
+      end
+    end
   end
 
   context 'advanced gameplay' do
