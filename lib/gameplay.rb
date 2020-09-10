@@ -28,13 +28,13 @@ class Gameplay
   end
 
   def play
-    checkmate = checkmate?(@player2, @p2_pieces, @board)
+    checkmate = checkmate?(@player2, @p2_pieces, @p1_pieces, @board)
     stalemate = stalemate?(@player2, @p2_pieces, @board)
     @board.print_board
 
     until checkmate || stalemate
       p1_turn = player_turn(@player1, @p1_pieces, @p2_pieces, @board)
-      checkmate = checkmate?(@player2, @p2_pieces, @board)
+      checkmate = checkmate?(@player2, @p2_pieces, @p1_pieces, @board)
       stalemate = stalemate?(@player2, @p2_pieces, @board)
 
       break if p1_turn == 'Q' || checkmate || stalemate
@@ -42,7 +42,7 @@ class Gameplay
       p2_turn = player_turn(@player2, @p2_pieces, @p1_pieces, @board)
       break if p2_turn == 'Q'
 
-      checkmate = checkmate?(@player1, @p1_pieces, @board)
+      checkmate = checkmate?(@player1, @p1_pieces, @p2_pieces, @board)
       stalemate = stalemate?(@player1, @p1_pieces, @board)
     end
     puts 'Checkmate!, Game over' if checkmate
@@ -158,7 +158,10 @@ class Gameplay
 
   def still_in_check?(p_moves, player_pieces, opp_pieces, board)
     # execute the move
+    my_piece = get_piece(p_moves[0], board)
+    my_piece.history.push(p_moves[1]) if my_piece.class == King
     opp_piece = get_piece(p_moves[1], board)
+
     capture_piece(p_moves, opp_pieces, board)
     board.move_piece(p_moves[0], p_moves[1])
     still_in_check = opp_check?(opp_pieces, player_pieces, board)
@@ -167,15 +170,107 @@ class Gameplay
     board.move_piece(p_moves[1], p_moves[0])
     board.add_piece(opp_piece, p_moves[1]) if opp_piece
     opp_pieces.push(opp_piece) if opp_piece
+    my_piece.history.pop if my_piece.class == King
 
     still_in_check
   end
 
-  # king in check, no possible way to escape check
-  def checkmate?(opponent, opponent_pieces, board)
-    check = opponent == @player1 ? @p1_check : @p2_check
+  # array id'ing piece(s) that place king in check
+  def checking_pieces(my_pieces, opponent_pieces, board)
+    opp_king_square = opponent_pieces.select { |piece| piece.class == King }[0].history.last
+    checking_pieces = my_pieces.select { |piece| piece.possible_moves(board).include?(opp_king_square) }
+    checking_pieces
+  end
+
+  # verify if opponent pieces can capture piece placing their king in check
+  def remove_checker?(my_pieces, opponent_pieces, board)
+    checker = checking_pieces(my_pieces, opponent_pieces, board)
+    return false unless checker.length == 1
+
+    checker_square = checker[0].history.last
+    checker_removers = opponent_pieces.select { |piece| piece.possible_moves(board).include?(checker_square) }
+    checker_removers.length.positive?
+  end
+
+  def horiz_btwn_squares(king_coords, checker_coords)
+    squares = []
+    if king_coords[1] > checker_coords[1] 
+      min, max = [checker_coords[1] + 1, king_coords[1] - 1]
+    else
+      min, max = [king_coords[1] + 1, checker_coords[1] - 1]
+    end
+    min.upto(max) { |i| squares.push(parse_square([king_coords[0], i])) }
+    squares
+  end
+
+  def vert_btwn_squares(king_coords, checker_coords)
+    squares = []
+    if king_coords[0] > checker_coords[0] 
+      min, max = [checker_coords[0] + 1, king_coords[0] - 1]
+    else
+      min, max = [king_coords[0] + 1, checker_coords[0] - 1]
+    end
+    min.upto(max) { |i| squares.push(parse_square([i, king_coords[1]])) }
+    squares
+  end
+
+  def diag_btwn_squares(king_coords, checker_coords)
+    squares = []
+    iter = (king_coords[0] - checker_coords[0]).abs - 1
+    row = king_coords[0] > checker_coords[0] ? -1 : 1
+    col = king_coords[1] > checker_coords[1] ? -1 : 1
+    1.upto(iter) do |i|
+      square = parse_square([king_coords[0] + (row * i), king_coords[1] + (col * i)])
+      squares.push(square)
+    end
+    squares
+  end
+
+  def get_btwn_squares(opp_king_square, checker_square)
+    king_coords = parse_coord(opp_king_square)
+    checker_coords = parse_coord(checker_square)
+    if king_coords[0] == checker_coords[0]  # horiz line
+      btwn_squares = horiz_btwn_squares(king_coords, checker_coords)
+    elsif king_coords[1] == checker_coords[1] # vert line
+      btwn_squares = vert_btwn_squares(king_coords, checker_coords)
+    else # diagonal line
+      btwn_squares = diag_btwn_squares(king_coords, checker_coords)
+    end
+    btwn_squares
+  end
+
+  # verify if opponent pieces can block piece placing their king in check
+  def block_checker?(my_pieces, opp_pieces, board)
+    checker = checking_pieces(my_pieces, opp_pieces, board)
+    mult_lines = [Rook, Bishop, Queen].include?(checker.class)
+    return false unless checker.length == 1 || mult_lines
+
+    opp_king_square = opp_pieces.select { |piece| piece.class == King }[0].history.last
+    checker_square = checker[0].history.last
+    # get squares btwn king and attacking piece
+    btwn_squares = get_btwn_squares(opp_king_square, checker_square)
+
+    # if btwn_squares, for each square, see if an opponents piece can move here
+    blockers = if btwn_squares
+                 btwn_squares.map { |square| opp_pieces.select { |piece| piece.possible_moves(board).include?(square) } }
+               else
+                 []
+               end
+    print "blockers: #{blockers}\n"
+    # if these pieces exist, return true
+    blockers.flatten.length.positive?
+  end
+
+  # opp king in check, no possible way to escape check
+  def checkmate?(opponent, opponent_pieces, my_pieces, board)
+    in_check = opponent == @player1 ? @p1_check : @p2_check
     opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
-    opp_king.possible_moves(board).length.zero? && check
+    no_king_moves = opp_king.possible_moves(board).length.zero?
+    checkers = checking_pieces(my_pieces, opponent_pieces, board)
+    checker_blocker = block_checker?(my_pieces, opponent_pieces, board)
+    checker_remover = remove_checker?(my_pieces, opponent_pieces, board)
+    print "#{in_check}, #{no_king_moves}, #{checkers.length}, #{checker_blocker}, #{checker_remover} \n"
+    no_king_moves && in_check && (checkers.length > 1 || (!checker_blocker && !checker_remover))
   end
 
   # king not in check, no possible moves
