@@ -23,8 +23,8 @@ class Gameplay
   def setup_in_progress(p1_pieces, p2_pieces)
     @p1_pieces, @p2_pieces = @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
     # update check state if a player was in check
-    set_check('player1', opp_check?(@p1_pieces, @p2_pieces, @board))
-    set_check('player2', opp_check?(@p2_pieces, @p1_pieces, @board))
+    toggle_check('player1') if opp_check?(@p1_pieces, @p2_pieces, @board)
+    toggle_check('player2') if opp_check?(@p2_pieces, @p1_pieces, @board)
     print "check1: #{@p1_check}, check2: #{@p2_check}"
   end
 
@@ -32,7 +32,6 @@ class Gameplay
     checkmate = checkmate?(@player2, @p2_pieces, @board)
     stalemate = stalemate?(@player2, @p2_pieces, @board)
     @board.print_board
-    print "stalemate #{stalemate}"
 
     until checkmate || stalemate
       p1_turn = player_turn(@player1, @p1_pieces, @p2_pieces, @board)
@@ -102,18 +101,12 @@ class Gameplay
   def stalemate?(opponent, opponent_pieces, board)
     check = opponent == @player1 ? @p1_check : @p2_check
     opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
-    puts !check
-    puts opp_king.possible_moves(board).length.zero?
     opp_king.possible_moves(board).length.zero? && !check
   end
 
   # set when opponent in check
-  def set_check(player, check)
-    if check
-      player == 'player1' ? @p2_check = true : @p1_check = true
-    else
-      player == 'player1' ? @p2_check = false : @p1_check = false
-    end
+  def toggle_check(player)
+    player == 'player1' ? @p2_check = !@p2_check : @p1_check = !@p1_check
   end
 
   def still_in_check?(p_moves, player_pieces, opp_pieces, board)
@@ -138,9 +131,8 @@ class Gameplay
     end
 
     move_piece(p_moves, opp_pieces, board)
-    check = opp_check?(player_pieces, opp_pieces, board)
-    puts('Check') if check
-    set_check(player, check)
+    puts('Check') if opp_check?(player_pieces, opp_pieces, board)
+    toggle_check(player) if opp_check?(player_pieces, opp_pieces, board)
   end
 
   def parse_coord(square)
@@ -172,5 +164,4 @@ class Gameplay
     player2 = Player.new('player2')
     [player1, player2]
   end
-
 end
