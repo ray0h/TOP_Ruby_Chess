@@ -29,6 +29,19 @@ class SetupBoard
     [p1_pieces, p2_pieces]
   end
 
+  def promoted_pawn(pawn, board)
+    square = pawn.history.last
+    promo_piece = nil
+    until promo_piece
+      puts 'Pawn promotion, enter the new piece (Knight, Bishop, Rook, Queen): '
+      response = STDIN.gets.to_s.chomp
+      promo_piece = promoted_piece(pawn, response)
+    end
+    board.remove_piece(square)
+    board.add_piece(promo_piece, square)
+    promo_piece
+  end
+
   private
 
   def parse_coord(square)
@@ -65,5 +78,27 @@ class SetupBoard
       board.add_piece(pieces[pawns], front_square)
       pieces[pawns].history.push(front_square)
     end
+  end 
+
+  def pick_piece(response, color, player_id)
+    if response == 'Knight'
+      piece = Knight.new(color, player_id)
+    elsif response == 'Bishop'
+      piece = Bishop.new(color, player_id)
+    elsif response == 'Rook'
+      piece = Rook.new(color, player_id)
+    elsif response == 'Queen'
+      piece = Queen.new(color, player_id)
+    end
+    piece
+  end
+
+  def promoted_piece(pawn, response)
+    player_id = pawn.player_id
+    color = pawn.color
+    response = response.downcase.capitalize
+    promoted_piece = pick_piece(response, color, player_id)
+    promoted_piece.history.push(pawn.history.last)
+    promoted_piece
   end
 end

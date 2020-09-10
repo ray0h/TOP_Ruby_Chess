@@ -1,6 +1,15 @@
 require './lib/setup_board'
 require './lib/board'
 
+# prevents methods that puts / print text from doing so when testing for returns
+# `yield` allows code wrapped in method to run
+def silence_output
+  orig_stdout = $stdout
+  $stdout = StringIO.new
+  yield
+  $stdout = orig_stdout
+end
+
 describe SetupBoard do
   let(:player1) { double('Player', id: 'player1', history: [])}
   let(:player2) { double('Player', id: 'player2', history: []) }
@@ -50,5 +59,16 @@ describe SetupBoard do
     expect(board.grid[7][0]).to be_truthy
     expect(board.grid[4][7]).to be_truthy
     expect(board.grid[4][7].color).to eql('black')
+  end
+
+  let(:wp8) { double('Pawn', color: 'white', player_id: 'player1', history: %w[H2 H4 H5 H6 H7 H8]) }
+  it 'adds to board and returns a promoted pawn piece' do
+    silence_output do
+      allow(STDIN).to receive(:gets).and_return('Rook')
+      promoted_piece = setup.promoted_pawn(wp8, board)
+      expect(promoted_piece.class).to eql(Rook)
+      expect(promoted_piece.history.last).to eql('H8')
+      expect(board.grid[7][7].class).to eql(Rook)
+    end
   end
 end
