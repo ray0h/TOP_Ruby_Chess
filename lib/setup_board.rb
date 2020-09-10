@@ -98,6 +98,7 @@ class SetupBoard
     color = pawn.color
     response = response.downcase.capitalize
     promoted_piece = pick_piece(response, color, player_id)
+    promoted_piece.history.push(pawn.history.last)
     promoted_piece
   end
 end

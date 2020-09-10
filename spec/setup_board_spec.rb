@@ -67,6 +67,7 @@ describe SetupBoard do
       allow(STDIN).to receive(:gets).and_return('Rook')
       promoted_piece = setup.promoted_pawn(wp8, board)
       expect(promoted_piece.class).to eql(Rook)
+      expect(promoted_piece.history.last).to eql('H8')
       expect(board.grid[7][7].class).to eql(Rook)
     end
   end
