@@ -23,8 +23,8 @@ class Gameplay
   def setup_in_progress_game(p1_pieces, p2_pieces)
     @p1_pieces, @p2_pieces = @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
     # update check state if a player was in check
-    toggle_check('player1') if opp_check?(@p1_pieces, @p2_pieces, @board)
-    toggle_check('player2') if opp_check?(@p2_pieces, @p1_pieces, @board)
+    toggle_check(@player1) if opp_check?(@p1_pieces, @p2_pieces, @board)
+    toggle_check(@player2) if opp_check?(@p2_pieces, @p1_pieces, @board)
   end
 
   def play
@@ -51,6 +51,23 @@ class Gameplay
 
   private
 
+  def player_turn(player, player_pieces, opp_pieces, board)
+    p_moves = ''
+    loop do
+      p_moves = get_moves(player, board)
+      return p_moves if p_moves == 'Q'
+
+      break unless still_in_check?(p_moves, player_pieces, opp_pieces, board)
+
+      puts 'King is still in check, please make another move'
+    end
+
+    execute_move(p_moves, player_pieces, opp_pieces, board)
+    puts('Check') if opp_check?(player_pieces, opp_pieces, board)
+    toggle_check(player) if opp_check?(player_pieces, opp_pieces, board)
+  end
+
+  # prompt for start/final squares for move
   def get_moves(player, board)
     p_moves = 'X'
     while p_moves == 'X'
@@ -73,6 +90,15 @@ class Gameplay
     # capture and remove piece
     opp_index = opp_pieces.find_index { |piece| piece.history.last == opp_piece.history.last } if opp_piece
     opp_pieces.delete_at(opp_index) if opp_piece
+  end
+
+  def execute_move(p_moves, player_pieces, opp_pieces, board)
+    update_move_history(p_moves, board)
+    capture_piece(p_moves, opp_pieces, board) # if opponent piece is in the square
+    castle_rook(p_moves, board) if start_castling?(p_moves, board) # castling
+    board.move_piece(p_moves[0], p_moves[1])
+    promote_pawn(p_moves, player_pieces, board) if pawn_end?(p_moves, board)
+    board.print_board
   end
 
   # king moves to start castling?
@@ -101,12 +127,19 @@ class Gameplay
     board.move_piece(rook_castle_moves[0], rook_castle_moves[1])
   end
 
-  def move_piece(p_moves, opp_pieces, board)
-    update_move_history(p_moves, board)
-    capture_piece(p_moves, opp_pieces, board) # if opponent piece is in the square
-    castle_rook(p_moves, board) if start_castling?(p_moves, board) # castling
-    board.move_piece(p_moves[0], p_moves[1])
-    board.print_board
+  # pawn reached end of board?
+  def pawn_end?(p_moves, board)
+    piece = get_piece(p_moves[1], board)
+    final_coords = parse_coord(p_moves[1])
+    piece.class == Pawn && final_coords[0] == 7
+  end
+
+  def promote_pawn(p_moves, player_pieces, board)
+    pawn = get_piece(p_moves[1], board)
+    promoted_piece = @setup_board.promoted_pawn(pawn, board)
+    pawn_index = player_pieces.find_index { |piece| piece.history.last == pawn.history.last }
+    player_pieces.delete_at(pawn_index)
+    player_pieces.push(promoted_piece)
   end
 
   # opponent's king in check?
@@ -119,23 +152,8 @@ class Gameplay
     false
   end
 
-  # king in check, no possible way to escape check
-  def checkmate?(opponent, opponent_pieces, board)
-    check = opponent == @player1 ? @p1_check : @p2_check
-    opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
-    opp_king.possible_moves(board).length.zero? && check
-  end
-
-  # king not in check, no possible moves
-  def stalemate?(opponent, opponent_pieces, board)
-    check = opponent == @player1 ? @p1_check : @p2_check
-    opp_moves = opponent_pieces.map { |piece| piece.possible_moves(board).length }
-    opp_moves.all?(&:zero?) && !check
-  end
-
-  # set when opponent in check
   def toggle_check(player)
-    player == 'player1' ? @p2_check = !@p2_check : @p1_check = !@p1_check
+    player == @player1 ? @p2_check = !@p2_check : @p1_check = !@p1_check
   end
 
   def still_in_check?(p_moves, player_pieces, opp_pieces, board)
@@ -153,20 +171,18 @@ class Gameplay
     still_in_check
   end
 
-  def player_turn(player, player_pieces, opp_pieces, board)
-    p_moves = ''
-    loop do
-      p_moves = get_moves(player, board)
-      return p_moves if p_moves == 'Q'
+  # king in check, no possible way to escape check
+  def checkmate?(opponent, opponent_pieces, board)
+    check = opponent == @player1 ? @p1_check : @p2_check
+    opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
+    opp_king.possible_moves(board).length.zero? && check
+  end
 
-      break unless still_in_check?(p_moves, player_pieces, opp_pieces, board)
-
-      puts 'King is still in check, please make another move'
-    end
-
-    move_piece(p_moves, opp_pieces, board)
-    puts('Check') if opp_check?(player_pieces, opp_pieces, board)
-    toggle_check(player) if opp_check?(player_pieces, opp_pieces, board)
+  # king not in check, no possible moves
+  def stalemate?(opponent, opponent_pieces, board)
+    check = opponent == @player1 ? @p1_check : @p2_check
+    opp_moves = opponent_pieces.map { |piece| piece.possible_moves(board).length }
+    opp_moves.all?(&:zero?) && !check
   end
 
   # misc methods used in other methods

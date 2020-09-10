@@ -1,6 +1,7 @@
 require './lib/gameplay'
 require './lib/king'
 require './lib/rook'
+require './lib/pawn'
 
 # prevents methods that puts / print text from doing so when testing for returns
 # `yield` allows code wrapped in method to run
@@ -126,6 +127,23 @@ describe Gameplay do
       end
     end
 
-    xit 'handles pawn promotion'
+    let(:wp1) {Pawn.new('white', 'player1')}
+    it 'handles pawn promotion' do
+      bkg.history.push('E8')
+      wkg.history.push('E1')
+      wp1.history.push('A7')
+      p1_pieces = [wkg, wp1]
+      p2_pieces = [bkg]
+      silence_output do
+        allow(STDIN).to receive(:gets).and_return('A7', 'A8', 'Rook', 'Q')
+        game.setup_in_progress_game(p1_pieces, p2_pieces)
+        print "#{game.p1_check}, #{game.p2_check}\n"
+
+        game.play
+        expect(game.board.grid[7][0].class).to eql(Rook)
+        expect(game.p1_pieces.length).to eql(2)
+        expect(game.p2_check).to be_truthy
+      end
+    end
   end
 end
