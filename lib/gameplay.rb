@@ -16,16 +16,15 @@ class Gameplay
     @setup_board = SetupBoard.new
   end
 
-  def setup_new
+  def setup_new_game
     @p1_pieces, @p2_pieces = @setup_board.new_game(@player1, @player2, @board)
   end
 
-  def setup_in_progress(p1_pieces, p2_pieces)
+  def setup_in_progress_game(p1_pieces, p2_pieces)
     @p1_pieces, @p2_pieces = @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
     # update check state if a player was in check
     toggle_check('player1') if opp_check?(@p1_pieces, @p2_pieces, @board)
     toggle_check('player2') if opp_check?(@p2_pieces, @p1_pieces, @board)
-    print "check1: #{@p1_check}, check2: #{@p2_check}"
   end
 
   def play
@@ -67,6 +66,7 @@ class Gameplay
     my_piece.history.push(p_moves[1])
   end
 
+  # remove piece from player_piece array
   def capture_piece(p_moves, opp_pieces, board)
     # check if opponent piece is in the square
     opp_piece = square_occupied?(p_moves[1], board)
@@ -75,9 +75,36 @@ class Gameplay
     opp_pieces.delete_at(opp_index) if opp_piece
   end
 
+  # king moves to start castling?
+  def start_castling?(p_moves, board)
+    piece = get_piece(p_moves[0], board)
+    squares_moved = parse_coord(p_moves[1])[1] - parse_coord(p_moves[0])[1]
+    print "piece: #{piece.class}, squares: #{squares_moved}\n"
+    (piece.class == King) && (squares_moved.abs > 1)
+  end
+
+  # get moves for rook to finish castling
+  def rook_castle_moves(final_king_coords, col, offset)
+    rook_start = parse_square([final_king_coords[0], col])
+    rook_finish = parse_square([final_king_coords[0], final_king_coords[1] + offset])
+    [rook_start, rook_finish]
+  end
+
+  # execute moves to complete castling
+  def castle_rook(p_moves, board)
+    squares_moved = parse_coord(p_moves[1])[1] - parse_coord(p_moves[0])[1]
+    final_king_coords = parse_coord(p_moves[1])
+    col, offset = squares_moved.positive? ? [7, -1] : [0, 1]
+    rook_castle_moves = rook_castle_moves(final_king_coords, col, offset)
+
+    update_move_history(rook_castle_moves, board)
+    board.move_piece(rook_castle_moves[0], rook_castle_moves[1])
+  end
+
   def move_piece(p_moves, opp_pieces, board)
     update_move_history(p_moves, board)
     capture_piece(p_moves, opp_pieces, board) # if opponent piece is in the square
+    castle_rook(p_moves, board) if start_castling?(p_moves, board) # castling
     board.move_piece(p_moves[0], p_moves[1])
     board.print_board
   end
@@ -92,16 +119,18 @@ class Gameplay
     false
   end
 
+  # king in check, no possible way to escape check
   def checkmate?(opponent, opponent_pieces, board)
     check = opponent == @player1 ? @p1_check : @p2_check
     opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
     opp_king.possible_moves(board).length.zero? && check
   end
 
+  # king not in check, no possible moves
   def stalemate?(opponent, opponent_pieces, board)
     check = opponent == @player1 ? @p1_check : @p2_check
-    opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
-    opp_king.possible_moves(board).length.zero? && !check
+    opp_moves = opponent_pieces.map { |piece| piece.possible_moves(board).length }
+    opp_moves.all?(&:zero?) && !check
   end
 
   # set when opponent in check
@@ -110,12 +139,17 @@ class Gameplay
   end
 
   def still_in_check?(p_moves, player_pieces, opp_pieces, board)
+    # execute the move
     opp_piece = get_piece(p_moves[1], board)
-
+    capture_piece(p_moves, opp_pieces, board)
     board.move_piece(p_moves[0], p_moves[1])
     still_in_check = opp_check?(opp_pieces, player_pieces, board)
+
+    # undo the move after seeing if king still in check
     board.move_piece(p_moves[1], p_moves[0])
     board.add_piece(opp_piece, p_moves[1]) if opp_piece
+    opp_pieces.push(opp_piece) if opp_piece
+
     still_in_check
   end
 
@@ -134,6 +168,8 @@ class Gameplay
     puts('Check') if opp_check?(player_pieces, opp_pieces, board)
     toggle_check(player) if opp_check?(player_pieces, opp_pieces, board)
   end
+
+  # misc methods used in other methods
 
   def parse_coord(square)
     square = square.split('')

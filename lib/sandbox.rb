@@ -7,4 +7,5 @@
 
 require_relative './gameplay'
 game = Gameplay.new
+game.setup_new_game
 game.play
