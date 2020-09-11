@@ -1,13 +1,13 @@
-require_relative './pieces/piece'
-require_relative './pieces/pawn'
-require_relative './pieces/knight'
-require_relative './pieces/bishop'
-require_relative './pieces/rook'
-require_relative './pieces/queen'
-require_relative './pieces/king'
+require './lib/pieces/piece'
+require './lib/pieces/pawn'
+require './lib/pieces/knight'
+require './lib/pieces/bishop'
+require './lib/pieces/rook'
+require './lib/pieces/queen'
+require './lib/pieces/king'
 
 # setting up chessboard
-class SetupBoard
+module SetupBoard
   def new_game(player1, player2, board)
     p1_pieces = create_new_pieces(player1.id, 'white')
     p2_pieces = create_new_pieces(player2.id, 'black')
@@ -29,17 +29,12 @@ class SetupBoard
     [p1_pieces, p2_pieces]
   end
 
-  def promoted_pawn(pawn, board)
-    square = pawn.history.last
-    promo_piece = nil
-    until promo_piece
-      puts 'Pawn promotion, enter the new piece (Knight, Bishop, Rook, Queen): '
-      response = STDIN.gets.to_s.chomp
-      promo_piece = promoted_piece(pawn, response)
-    end
-    board.remove_piece(square)
-    board.add_piece(promo_piece, square)
-    promo_piece
+  def promote_pawn(p_moves, player_pieces, board)
+    pawn = get_piece(p_moves[1], board)
+    promoted_piece = promoted_pawn(pawn, board)
+    pawn_index = player_pieces.find_index { |piece| piece.history.last == pawn.history.last }
+    player_pieces.delete_at(pawn_index)
+    player_pieces.push(promoted_piece)
   end
 
   private
@@ -78,7 +73,7 @@ class SetupBoard
       board.add_piece(pieces[pawns], front_square)
       pieces[pawns].history.push(front_square)
     end
-  end 
+  end
 
   def pick_piece(response, color, player_id)
     if response == 'Knight'
@@ -100,5 +95,18 @@ class SetupBoard
     promoted_piece = pick_piece(response, color, player_id)
     promoted_piece.history.push(pawn.history.last)
     promoted_piece
+  end
+
+  def promoted_pawn(pawn, board)
+    square = pawn.history.last
+    promo_piece = nil
+    until promo_piece
+      puts 'Pawn promotion, enter the new piece (Knight, Bishop, Rook, Queen): '
+      response = STDIN.gets.to_s.chomp
+      promo_piece = promoted_piece(pawn, response)
+    end
+    board.remove_piece(square)
+    board.add_piece(promo_piece, square)
+    promo_piece
   end
 end

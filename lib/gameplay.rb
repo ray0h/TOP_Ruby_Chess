@@ -1,6 +1,6 @@
 require_relative './player'
 require_relative './board'
-require_relative './setup_board'
+require './lib/modules/setup_board'
 require './lib/modules/moves'
 require './lib/modules/board_state'
 require './lib/modules/save_load'
@@ -14,7 +14,8 @@ class Gameplay
   include Moves
   include BoardState
   include SaveLoad
- 
+  include SetupBoard
+
   def initialize
     @player1, @player2 = create_players
     @p1_pieces = []
@@ -25,15 +26,15 @@ class Gameplay
     @directory = './saved_games'
     @files = Dir.glob("#{@directory}/**/*")
     @board = Board.new
-    @setup_board = SetupBoard.new
+    # @setup_board = SetupBoard.new
   end
 
   def setup_new_game
-    @p1_pieces, @p2_pieces = @setup_board.new_game(@player1, @player2, @board)
+    @p1_pieces, @p2_pieces = new_game(@player1, @player2, @board)
   end
 
   def setup_in_progress_game(p1_pieces, p2_pieces, last_move)
-    @p1_pieces, @p2_pieces = @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
+    @p1_pieces, @p2_pieces = in_progress_game(p1_pieces, p2_pieces, @board)
     # update check state if a player was in check
     @last_move = last_move
     toggle_check(@player1) if opp_check?(@p1_pieces, @p2_pieces, @board)

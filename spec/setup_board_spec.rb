@@ -1,4 +1,4 @@
-require './lib/setup_board'
+require './lib/modules/setup_board'
 require './lib/board'
 
 # prevents methods that puts / print text from doing so when testing for returns
@@ -10,15 +10,16 @@ def silence_output
   $stdout = orig_stdout
 end
 
-describe SetupBoard do
+describe 'SetupBoard' do
+  include SetupBoard
   let(:player1) { double('Player', id: 'player1', history: [])}
   let(:player2) { double('Player', id: 'player2', history: []) }
   let(:board) { Board.new }
-  let(:setup) { SetupBoard.new }
+  # let(:setup) { Class.new { include SetupBoard } }
 
   context 'new board' do
     it 'has method to set up a new/fresh chessboard' do
-      setup.new_game(player1, player2, board)
+      new_game(player1, player2, board)
       expect(board.grid[7].none?(nil)).to be_truthy
       expect(board.grid[6].none?(nil)).to be_truthy
       expect(board.grid[1].none?(nil)).to be_truthy
@@ -28,13 +29,13 @@ describe SetupBoard do
     end
 
     it 'assigns a set of 16 pieces to a player' do
-      p1_pieces, p2_pieces = setup.new_game(player1, player2, board)
+      p1_pieces, p2_pieces = new_game(player1, player2, board)
       expect(p1_pieces.length).to eql(16)
       expect(p2_pieces.length).to eql(16)
     end
 
     it 'includes the appropriate types/numbers of each piece' do
-      p1_pieces, p2_pieces = setup.new_game(player1, player2, board)
+      p1_pieces, p2_pieces = new_game(player1, player2, board)
       piece_types = p1_pieces.map(&:class)
       expect(piece_types.count(King)).to eql(1)
       expect(piece_types.count(Queen)).to eql(1)
@@ -52,7 +53,7 @@ describe SetupBoard do
   it 'sets up a custom board' do
     p1_pieces = [wkg, wp1]
     p2_pieces = [bqn, bkg]
-    setup.in_progress_game(p1_pieces, p2_pieces, board)
+    in_progress_game(p1_pieces, p2_pieces, board)
     expect(board.grid[1][1]).to be_nil
     expect(board.grid[1][0]).to be_truthy
     expect(board.grid[0][4]).to be_truthy
@@ -65,7 +66,7 @@ describe SetupBoard do
   it 'adds to board and returns a promoted pawn piece' do
     silence_output do
       allow(STDIN).to receive(:gets).and_return('Rook')
-      promoted_piece = setup.promoted_pawn(wp8, board)
+      promoted_piece = promoted_pawn(wp8, board)
       expect(promoted_piece.class).to eql(Rook)
       expect(promoted_piece.history.last).to eql('H8')
       expect(board.grid[7][7].class).to eql(Rook)

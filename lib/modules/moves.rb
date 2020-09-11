@@ -92,12 +92,5 @@ module Moves
     final_coords = parse_coord(p_moves[1])
     piece.class == Pawn && final_coords[0] == 7
   end
-
-  def promote_pawn(p_moves, player_pieces, board)
-    pawn = get_piece(p_moves[1], board)
-    promoted_piece = @setup_board.promoted_pawn(pawn, board)
-    pawn_index = player_pieces.find_index { |piece| piece.history.last == pawn.history.last }
-    player_pieces.delete_at(pawn_index)
-    player_pieces.push(promoted_piece)
-  end
+  
 end
