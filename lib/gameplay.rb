@@ -32,13 +32,56 @@ class Gameplay
     toggle_check(@player2) if opp_check?(@p2_pieces, @p1_pieces, @board)
   end
 
+  def list_saved_games
+    print "Saved chess games: \n"
+    @files.each_with_index do |file, ind|
+      print "#{ind + 1}. #{file} \n"
+    end
+  end
+
+  def choose_saved_game
+    choices = Array.new(@files.length) { |el| (el + 1).to_s }
+    print "Choose a game to load, or enter 'N' to start new game: \n"
+    choice = ''
+    until choices.include?(choice) || choice == 'n'
+      print 'choice: '
+      choice = STDIN.gets.chomp.downcase
+    end
+    choice != 'n' ? @files[choice.to_i - 1].to_s : 'n'
+  end
+
+  def load_from_yaml(path)
+    file = File.open(path, 'r')
+    contents = file.read
+    file.close
+    data = YAML.load contents
+    [data[:p1_pieces], data[:p2_pieces], data[:last_move]]
+    # File.delete(path) # delete file after loading?
+  end
+
+  def setup_board
+    setup_new_game if @files.length.zero?
+    list_saved_games
+    choice = choose_saved_game
+    setup_new_game if choice == 'n'
+    p1_pieces, p2_pieces, last_move = load_from_yaml(choice) if choice != 'n'
+    setup_in_progress_game(p1_pieces, p2_pieces, last_move)
+  end
+
+  def skip_p1?
+    return false unless @last_move
+    piece = get_piece(@last_move[1], @board)
+    piece.player_id == @player1.id
+  end
+
   def play
+    p @last_move
     checkmate = checkmate?(@player2, @p2_pieces, @p1_pieces, @board)
     stalemate = stalemate?(@player2, @p2_pieces, @board)
     @board.print_board
 
     until checkmate || stalemate
-      p1_turn = player_turn(@player1, @p1_pieces, @p2_pieces, @board)
+      p1_turn = player_turn(@player1, @p1_pieces, @p2_pieces, @board) unless skip_p1?
       checkmate = checkmate?(@player2, @p2_pieces, @p1_pieces, @board)
       stalemate = stalemate?(@player2, @p2_pieces, @board)
 

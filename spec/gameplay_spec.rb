@@ -188,7 +188,7 @@ describe 'Gameplay - saving' do
     # FileUtils.rm_rf Dir.glob(directory + '/**')
     # expect(Dir.glob(directory + '/**').length).to eql(0)
     files = Dir.glob(directory + '/**').length
-    allow(STDIN).to receive(:gets).and_return('S')
+    allow(STDIN).to receive(:gets).and_return('D2', 'D4', 'S')
     silence_output do
       game.setup_new_game
       game.play
@@ -197,6 +197,11 @@ describe 'Gameplay - saving' do
   end
 
   it 'can load a game' do
-    
+    allow(STDIN).to receive(:gets).and_return(1)
+    silence_output do
+      game.setup_board
+      expect(game.board.grid[1][3]).to be_nil
+      expect(game.board.grid[3][3].class).to be(Pawn)
+    end
   end
 end

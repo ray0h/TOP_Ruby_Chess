@@ -33,6 +33,7 @@
   player_id: player1
   history:
   - E1
+  - G1
   opponent: 'black '
   symbol: "♔"
 - !ruby/object:Bishop
@@ -40,6 +41,7 @@
   player_id: player1
   history:
   - F1
+  - D3
   opponent: 'black '
   symbol: "♗"
 - !ruby/object:Knight
@@ -47,6 +49,7 @@
   player_id: player1
   history:
   - G1
+  - F3
   opponent: 'black '
   symbol: "♘"
 - !ruby/object:Rook
@@ -54,6 +57,7 @@
   player_id: player1
   history:
   - H1
+  - F1
   opponent: 'black '
   symbol: "♖"
 - !ruby/object:Pawn
@@ -77,6 +81,8 @@
   player_id: player1
   history:
   - C2
+  - C3
+  - D4
   opponent: 'black '
   symbol: "♙"
   ep_flag: false
@@ -84,16 +90,8 @@
   color: white
   player_id: player1
   history:
-  - D2
-  - D4
-  opponent: 'black '
-  symbol: "♙"
-  ep_flag: true
-- !ruby/object:Pawn
-  color: white
-  player_id: player1
-  history:
   - E2
+  - E3
   opponent: 'black '
   symbol: "♙"
   ep_flag: false
@@ -162,6 +160,7 @@
   player_id: player2
   history:
   - F8
+  - B4
   opponent: white
   symbol: "♝"
 - !ruby/object:Knight
@@ -199,6 +198,7 @@
   player_id: player2
   history:
   - C7
+  - C6
   opponent: white
   symbol: "♟"
   ep_flag: false
@@ -207,14 +207,8 @@
   player_id: player2
   history:
   - D7
-  opponent: white
-  symbol: "♟"
-  ep_flag: false
-- !ruby/object:Pawn
-  color: black
-  player_id: player2
-  history:
-  - E7
+  - D6
+  - D5
   opponent: white
   symbol: "♟"
   ep_flag: false
@@ -243,5 +237,5 @@
   symbol: "♟"
   ep_flag: false
 :last_move:
-- D2
-- D4
+- E1
+- G1
