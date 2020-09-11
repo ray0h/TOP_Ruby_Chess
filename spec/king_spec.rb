@@ -71,7 +71,7 @@ describe 'King - moves unique to king class' do
     allow(wr2).to receive(:history).and_return(['H1'])
     allow(wr2).to receive(:first_move?).and_return(true)
     allow(wkg).to receive(:opponent_poss_moves).with(board).and_return([])
-    allow(wkg).to receive(:get_between_squares).with(wr2, board).and_return(%w[F1 G1])
+    allow(wkg).to receive(:get_between_squares).with(wr2).and_return(%w[F1 G1])
 
     expect(wkg.possible_moves(board).length).to eql(6)
     expect(wkg.possible_moves(board)).to include('G1')
