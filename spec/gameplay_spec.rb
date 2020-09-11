@@ -34,7 +34,7 @@ describe 'Gameplay - basic gameplay' do
   let(:wr1) { Rook.new('white', 'player1') }
 
   it 'reflects a player move on the board' do
-    # silence_output do
+    silence_output do
       game.setup_new_game
       expect(game.board.grid[1][3]).to be_truthy
       expect(game.board.grid[3][3]).to be_nil
@@ -42,7 +42,7 @@ describe 'Gameplay - basic gameplay' do
       game.play
       expect(game.board.grid[1][3]).to be_nil
       expect(game.board.grid[3][3]).to be_truthy
-    # end
+    end
   end
 
   it 'removes captured pieces' do
@@ -175,15 +175,7 @@ end
 describe 'Gameplay - saving' do
   let(:game) { Gameplay.new }
 
-  # it 'can accept "S" input to save current game' do
-  #   allow(STDIN).to receive(:gets).and_return('S')
-  #   silence_output do
-  #     game.setup_new_game
-  #     game.play
-  #   end
-  # end
-
-  it 'can save a game' do
+  xit 'can save a game' do
     directory = './saved_games'
     # FileUtils.rm_rf Dir.glob(directory + '/**')
     # expect(Dir.glob(directory + '/**').length).to eql(0)
