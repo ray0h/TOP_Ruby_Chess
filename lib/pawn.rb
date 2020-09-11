@@ -22,6 +22,7 @@ class Pawn < Piece
 
     valid_diagonals(current_coords, board).each { |move| poss_move_array.push(move) }
 
+    # en passant only allowed opportunity first created
     poss_move_array.push(en_passant?(current_coords, board)) if en_passant?(current_coords, board)
 
     poss_move_array
@@ -64,10 +65,11 @@ class Pawn < Piece
     valid_diagonals
   end
 
-  def check_side_squares(piece)
+  # returns adj side square if occupied by opp pawn, and it 'double marched'
+  def check_side_square(piece)
     possible = false
     offset = @color == 'white' ? 1 : -1
-    if piece.ep_flag && piece.class.name == 'Pawn'
+    if piece.class.name == 'Pawn' && !my_piece?(piece) && piece.history.length == 2 && piece.ep_flag
       square = piece.history.last
       coord = parse_coord(square)
       possible = parse_square([coord[0] + offset, coord[1]])
@@ -76,6 +78,7 @@ class Pawn < Piece
   end
 
   def en_passant?(coords, board)
+    # en passant can only occur on certain rows
     row = @color == 'white' ? 4 : 3
     possible = false
     return false unless coords[0] == row
@@ -83,8 +86,8 @@ class Pawn < Piece
     poss_piece1 = square_occupied?(parse_square([coords[0], coords[1] + 1]), board)
     poss_piece2 = square_occupied?(parse_square([coords[0], coords[1] - 1]), board)
 
-    possible = check_side_squares(poss_piece1) if poss_piece1
-    possible = check_side_squares(poss_piece2) if poss_piece2
+    possible = check_side_square(poss_piece1) if poss_piece1
+    possible = check_side_square(poss_piece2) if poss_piece2
     possible
   end
 end

@@ -6,14 +6,15 @@ class Board
   end
 
   def print_board(grid = @grid)
+    #puts "\e[H\e[2J"
     top = "   _ _ _ _ _ _ _ _\n"
     7.downto(0) do |i|
       row = "#{i + 1} |"
       0.upto(7) { |j| row += grid[i][j].nil? ? '_|' : "#{grid[i][j].symbol}|" }
       top += row + "\n"
     end
-    col = "   A B C D E F G H\n\n"
-    top += col
+    bot = "   A B C D E F G H\nEnter 'Q' anytime to quite game\n\n"
+    top += bot
     print top
   end
 

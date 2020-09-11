@@ -12,6 +12,7 @@ class Gameplay
     @p2_pieces = []
     @p1_check = false
     @p2_check = false
+    @last_move = []
     @board = Board.new
     @setup_board = SetupBoard.new
   end
@@ -20,9 +21,10 @@ class Gameplay
     @p1_pieces, @p2_pieces = @setup_board.new_game(@player1, @player2, @board)
   end
 
-  def setup_in_progress_game(p1_pieces, p2_pieces)
+  def setup_in_progress_game(p1_pieces, p2_pieces, last_move)
     @p1_pieces, @p2_pieces = @setup_board.in_progress_game(p1_pieces, p2_pieces, @board)
     # update check state if a player was in check
+    @last_move = last_move
     toggle_check(@player1) if opp_check?(@p1_pieces, @p2_pieces, @board)
     toggle_check(@player2) if opp_check?(@p2_pieces, @p1_pieces, @board)
   end
@@ -52,6 +54,7 @@ class Gameplay
   private
 
   def player_turn(player, player_pieces, opp_pieces, board)
+    toggle_enpassant(board)
     p_moves = ''
     loop do
       p_moves = get_moves(player, board)
@@ -63,6 +66,8 @@ class Gameplay
     end
 
     execute_move(p_moves, player_pieces, opp_pieces, board)
+    toggle_enpassant(board)
+    @last_move = p_moves
     puts('Check') if opp_check?(player_pieces, opp_pieces, board)
     toggle_check(player) if opp_check?(player_pieces, opp_pieces, board)
   end
@@ -99,6 +104,18 @@ class Gameplay
     board.move_piece(p_moves[0], p_moves[1])
     promote_pawn(p_moves, player_pieces, board) if pawn_end?(p_moves, board)
     board.print_board
+  end
+
+  def toggle_enpassant(board)
+    return if @last_move.length.zero?
+
+    last_piece = get_piece(@last_move[1], board)
+    return unless last_piece.class == Pawn
+
+    coords = parse_coord(@last_move[1])
+    last_piece.ep_flag = !last_piece.ep_flag if last_piece.history.length == 2 && [3, 4].include?(coords[0]) 
+    
+    # == 3 || coords[0] == 4)
   end
 
   # king moves to start castling?
@@ -269,7 +286,7 @@ class Gameplay
     checkers = checking_pieces(my_pieces, opponent_pieces, board)
     checker_blocker = block_checker?(my_pieces, opponent_pieces, board)
     checker_remover = remove_checker?(my_pieces, opponent_pieces, board)
-    print "#{in_check}, #{no_king_moves}, #{checkers.length}, #{checker_blocker}, #{checker_remover} \n"
+    # print "#{in_check}, #{no_king_moves}, #{checkers.length}, #{checker_blocker}, #{checker_remover} \n"
     no_king_moves && in_check && (checkers.length > 1 || (!checker_blocker && !checker_remover))
   end
 
