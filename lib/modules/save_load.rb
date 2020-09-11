@@ -23,6 +23,14 @@ module SaveLoad
     choice != 'n' ? @files[choice.to_i - 1].to_s : 'n'
   end
 
+  def save_game(files, directory, p1_pieces, p2_pieces, last_move)
+    directory = directory + '/' + 'game' + (files.length + 1).to_s + '.txt'
+    File.open(directory, 'w') do |f|
+      YAML.dump({ p1_pieces: p1_pieces, p2_pieces: p2_pieces, last_move: last_move }, f)
+    end
+    print "game saved...goodbye \n"
+  end
+
   def load_from_yaml(path)
     file = File.open(path, 'r')
     contents = file.read

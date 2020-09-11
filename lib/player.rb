@@ -1,5 +1,9 @@
+require './lib/modules/board_helpers'
+
 # Player class
 class Player
+  include BoardHelpers
+
   attr_reader :id
   def initialize(player_id)
     @id = player_id
@@ -12,30 +16,24 @@ class Player
   end
 
   def start_move(board)
-    print "#{@id}, pick a square: "
-    init_square = STDIN.gets.to_s.chomp
-    move = valid_square?(init_square, board)
+    move = prompt_first_sq(board)
     until move['valid']
       print "#{move['error_msg']}\n"
-      print "#{@id}, pick a square: "
-      init_square = STDIN.gets.to_s.chomp
-      move = valid_square?(init_square, board)
+      move = prompt_first_sq(board)
     end
+    init_square = move['error_msg']
     init_square
   end
 
   def finish_move(init_square, board)
     return init_square if %w[Q S].include?(init_square)
 
-    print "#{@id}, pick a square to move to, or press 'X' to cancel move: "
-    final_square = STDIN.gets.to_s.chomp
-    move = valid_final_square?(final_square, init_square, board)
+    move = prompt_final_sq(init_square, board)
     until move['valid']
       print "#{move['error_msg']}\n"
-      print "#{@id}, pick a square to move to, or press 'X' to cancel move: "
-      final_square = STDIN.gets.to_s.chomp
-      move = valid_final_square?(final_square, init_square, board)
+      move = prompt_final_sq(init_square, board)
     end
+    final_square = move['error_msg']
     %w[X Q S].include?(final_square) ? final_square : [init_square, final_square]
   end
 
@@ -43,20 +41,8 @@ class Player
 
   attr_writer :id
 
-  def parse_coord(square)
-    coord = square.split('')
-    row = coord[1].to_i - 1
-    col = coord[0].bytes[0] - 65
-    [row, col]
-  end
-
   def valid_id?(square)
     square.length == 2
-  end
-
-  def on_board?(square)
-    coord = parse_coord(square)
-    coord[0].between?(0, 7) && coord[1].between?(0, 7)
   end
 
   def square_occupied?(square, board)
@@ -70,6 +56,18 @@ class Player
     piece.player_id == @id
   end
 
+  def prompt_first_sq(board)
+    print "#{@id}, pick a square: "
+    init_square = STDIN.gets.to_s.chomp
+    valid_square?(init_square, board)
+  end
+
+  def prompt_final_sq(init_square, board)
+    print "#{@id}, pick a square to move to, or press 'X' to cancel move: "
+    final_square = STDIN.gets.to_s.chomp
+    valid_final_square?(final_square, init_square, board)
+  end
+
   def valid_square?(square, board)
     return { 'valid' => true, 'error_msg' => '' } if %w[X Q S].include?(square)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(square)
@@ -81,16 +79,11 @@ class Player
     opp_piece_msg = 'That is opponent\'s piece, pick one of yours'
     return { 'valid' => false, 'error_msg' => opp_piece_msg } unless my_piece?(square, board)
 
-    { 'valid' => true, 'error_msg' => '' }
-  end
-
-  def get_piece(square, board)
-    coord = parse_coord(square)
-    board.grid[coord[0]][coord[1]]
+    { 'valid' => true, 'error_msg' => square }
   end
 
   def valid_final_square?(final_square, init_square, board)
-    return { 'valid' => true, 'error_msg' => '' } if %w[X Q S].include?(final_square)
+    return { 'valid' => true, 'error_msg' => final_square } if %w[X Q S].include?(final_square)
 
     piece = get_piece(init_square, board)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(final_square)
@@ -102,6 +95,6 @@ class Player
     not_poss_err = 'Can not move current piece there, pick another square'
     return { 'valid' => false, 'error_msg' => not_poss_err } unless piece.possible_moves(board).include?(final_square)
 
-    { 'valid' => true, 'error_msg' => '' }
+    { 'valid' => true, 'error_msg' => final_square }
   end
 end
