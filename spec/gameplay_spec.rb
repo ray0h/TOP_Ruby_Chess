@@ -19,7 +19,7 @@ describe Gameplay do
   let(:wr1) { Rook.new('white', 'player1') }
   let(:wp1) { Pawn.new('white', 'player1') }
   let(:bp2) { Pawn.new('black', 'player2') }
-
+  
   context 'setting up' do
     it 'sets up two players' do
       expect(game.player1.class.name).to eql('Player')
@@ -78,12 +78,10 @@ describe Gameplay do
         bkg.history.push('H8')
         wkg.history.push('F7')
         wr1.history.push('G1')
-        p1_pieces = [wkg, wr1]
-        p2_pieces = [bkg]
 
         silence_output do
           allow(STDIN).to receive(:gets).and_return('G1', 'H1')
-          game.setup_in_progress_game(p1_pieces, p2_pieces, %w[H7 H8])
+          game.setup_in_progress_game([wkg, wr1], [bkg], %w[H7 H8])
           game.play
           expect(game.p2_check).to be_truthy
         end
@@ -95,12 +93,10 @@ describe Gameplay do
         bkg.history.push('H1')
         wkg.history.push('H3')
         wr1.history.push('G8')
-        p1_pieces = [wkg, wr1]
-        p2_pieces = [bkg]
 
         silence_output do
           allow(STDIN).to receive(:gets).and_return('G8', 'G7')
-          game.setup_in_progress_game(p1_pieces, p2_pieces, %w[G1 H1])
+          game.setup_in_progress_game([wkg, wr1], [bkg], %w[G1 H1])
           game.play
           expect(game.p2_check).to be_falsy
         end
@@ -113,12 +109,10 @@ describe Gameplay do
       bkg.history.push('A8')
       wkg.history.push('E1')
       wr1.history.push('H1')
-      p1_pieces = [wkg, wr1]
-      p2_pieces = [bkg]
 
       silence_output do
         allow(STDIN).to receive(:gets).and_return('E1', 'G1', 'Q')
-        game.setup_in_progress_game(p1_pieces, p2_pieces, %w[A7 A8])
+        game.setup_in_progress_game([wkg, wr1], [bkg], %w[A7 A8])
         game.play
         expect(game.board.grid[0][6].class).to eql(King)
         expect(game.board.grid[0][5].class).to eql(Rook)
@@ -129,11 +123,9 @@ describe Gameplay do
       bkg.history.push('E8')
       wkg.history.push('E1')
       wp1.history.push('A7')
-      p1_pieces = [wkg, wp1]
-      p2_pieces = [bkg]
       silence_output do
         allow(STDIN).to receive(:gets).and_return('A7', 'A8', 'Rook', 'Q')
-        game.setup_in_progress_game(p1_pieces, p2_pieces, %w[E7 E8])
+        game.setup_in_progress_game([wkg, wp1], [bkg], %w[E7 E8])
         print "#{game.p1_check}, #{game.p2_check}\n"
 
         game.play
@@ -144,23 +136,32 @@ describe Gameplay do
     end
 
     context 'en passant moves' do
-      it 'executes pawn en passant when first given chance' do
+      before(:each) do
         wp1.history.push('A2')
         bp2.history = %w[B7 B5 B4]
         wkg.history.push('E1')
         bkg.history.push('E8')
-        p1_pieces = [wkg, wp1]
-        p2_pieces = [bkg, bp2]
+      end
+
+      it 'can execute pawn en passant when first given chance' do
         silence_output do
           allow(STDIN).to receive(:gets).and_return('A2', 'A4', 'Q')
-          game.setup_in_progress_game(p1_pieces, p2_pieces, %w[B5 B4])
+          game.setup_in_progress_game([wkg, wp1], [bkg, bp2], %w[B5 B4])
           game.play
           expect(bp2.possible_moves(game.board).length).to eql(2)
           expect(bp2.possible_moves(game.board)).to include('A3')
         end
       end
 
-      xit 'can no longer en passant if alternate move made when first given chance'
+      it 'can no longer en passant if alternate move made when first given chance' do
+        silence_output do
+          allow(STDIN).to receive(:gets).and_return('A2', 'A4', 'E8', 'E7', 'Q')
+          game.setup_in_progress_game([wkg, wp1], [bkg, bp2], %w[B5 B4])
+          game.play
+          expect(bp2.possible_moves(game.board).length).to eql(1)
+          expect(bp2.possible_moves(game.board)).to_not include('A3')
+        end
+      end
     end
   end
 end
