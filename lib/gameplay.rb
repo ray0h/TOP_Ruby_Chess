@@ -55,15 +55,8 @@ class Gameplay
 
   def player_turn(player, player_pieces, opp_pieces, board)
     toggle_enpassant(board)
-    p_moves = ''
-    loop do
-      p_moves = get_moves(player, board)
-      return p_moves if p_moves == 'Q'
-
-      break unless still_in_check?(p_moves, player_pieces, opp_pieces, board)
-
-      puts 'King is still in check, please make another move'
-    end
+    p_moves = validate_moves(player, player_pieces, opp_pieces, board)
+    return p_moves if p_moves == 'Q'
 
     execute_move(p_moves, player_pieces, opp_pieces, board)
     toggle_enpassant(board)
@@ -106,23 +99,23 @@ class Gameplay
     board.print_board
   end
 
-  def toggle_enpassant(board)
-    return if @last_move.length.zero?
+  def validate_moves(player, player_pieces, opp_pieces, board)
+    p_moves = ''
+    loop do
+      p_moves = get_moves(player, board)
+      return p_moves if p_moves == 'Q'
 
-    last_piece = get_piece(@last_move[1], board)
-    return unless last_piece.class == Pawn
+      break unless still_in_check?(p_moves, player_pieces, opp_pieces, board)
 
-    coords = parse_coord(@last_move[1])
-    last_piece.ep_flag = !last_piece.ep_flag if last_piece.history.length == 2 && [3, 4].include?(coords[0]) 
-    
-    # == 3 || coords[0] == 4)
+      puts 'King is still in check, please make another move'
+    end
+    p_moves
   end
 
   # king moves to start castling?
   def start_castling?(p_moves, board)
     piece = get_piece(p_moves[0], board)
     squares_moved = parse_coord(p_moves[1])[1] - parse_coord(p_moves[0])[1]
-    print "piece: #{piece.class}, squares: #{squares_moved}\n"
     (piece.class == King) && (squares_moved.abs > 1)
   end
 
@@ -142,6 +135,17 @@ class Gameplay
 
     update_move_history(rook_castle_moves, board)
     board.move_piece(rook_castle_moves[0], rook_castle_moves[1])
+  end
+
+  # toggle ep_flag in en passant scenarios
+  def toggle_enpassant(board)
+    return if @last_move.length.zero?
+
+    last_piece = get_piece(@last_move[1], board)
+    return unless last_piece.class == Pawn
+
+    coords = parse_coord(@last_move[1])
+    last_piece.ep_flag = !last_piece.ep_flag if last_piece.history.length == 2 && [3, 4].include?(coords[0])
   end
 
   # pawn reached end of board?
@@ -173,21 +177,27 @@ class Gameplay
     player == @player1 ? @p2_check = !@p2_check : @p1_check = !@p1_check
   end
 
-  def still_in_check?(p_moves, player_pieces, opp_pieces, board)
-    # execute the move
+  def fast_forward_move(p_moves, opp_pieces, board)
     my_piece = get_piece(p_moves[0], board)
     my_piece.history.push(p_moves[1]) if my_piece.class == King
-    opp_piece = get_piece(p_moves[1], board)
-
     capture_piece(p_moves, opp_pieces, board)
     board.move_piece(p_moves[0], p_moves[1])
-    still_in_check = opp_check?(opp_pieces, player_pieces, board)
+  end
 
-    # undo the move after seeing if king still in check
+  def rewind_move(p_moves, board)
     board.move_piece(p_moves[1], p_moves[0])
+    opp_piece = get_piece(p_moves[1], board)
     board.add_piece(opp_piece, p_moves[1]) if opp_piece
     opp_pieces.push(opp_piece) if opp_piece
+    my_piece = get_piece(p_moves[0], board)
     my_piece.history.pop if my_piece.class == King
+  end
+
+  def still_in_check?(p_moves, player_pieces, opp_pieces, board)
+    fast_forward_move(p_moves, opp_pieces, board)
+    # check if move eliminates check
+    still_in_check = opp_check?(opp_pieces, player_pieces, board)
+    rewind_move(p_moves, board)
 
     still_in_check
   end
@@ -211,10 +221,12 @@ class Gameplay
 
   def horiz_btwn_squares(king_coords, checker_coords)
     squares = []
-    if king_coords[1] > checker_coords[1] 
-      min, max = [checker_coords[1] + 1, king_coords[1] - 1]
+    if king_coords[1] > checker_coords[1]
+      min = checker_coords[1] + 1
+      max = king_coords[1] - 1
     else
-      min, max = [king_coords[1] + 1, checker_coords[1] - 1]
+      min = king_coords[1] + 1
+      max = checker_coords[1] - 1
     end
     min.upto(max) { |i| squares.push(parse_square([king_coords[0], i])) }
     squares
@@ -222,23 +234,29 @@ class Gameplay
 
   def vert_btwn_squares(king_coords, checker_coords)
     squares = []
-    if king_coords[0] > checker_coords[0] 
-      min, max = [checker_coords[0] + 1, king_coords[0] - 1]
+    if king_coords[0] > checker_coords[0]
+      min = checker_coords[0] + 1
+      max = king_coords[0] - 1
     else
-      min, max = [king_coords[0] + 1, checker_coords[0] - 1]
+      min = king_coords[0] + 1
+      max = checker_coords[0] - 1
     end
     min.upto(max) { |i| squares.push(parse_square([i, king_coords[1]])) }
     squares
   end
 
-  def diag_btwn_squares(king_coords, checker_coords)
-    squares = []
-    iter = (king_coords[0] - checker_coords[0]).abs - 1
+  def diag_offsets(king_coords, checker_coords)
     row = king_coords[0] > checker_coords[0] ? -1 : 1
     col = king_coords[1] > checker_coords[1] ? -1 : 1
+    iter = (king_coords[0] - checker_coords[0]).abs - 1
+    [row, col, iter]
+  end
+
+  def diag_btwn_squares(king_coords, checker_coords)
+    squares = []
+    row, col, iter = diag_offsets(king_coords, checker_coords)
     1.upto(iter) do |i|
-      square = parse_square([king_coords[0] + (row * i), king_coords[1] + (col * i)])
-      squares.push(square)
+      squares.push(parse_square([king_coords[0] + (row * i), king_coords[1] + (col * i)]))
     end
     squares
   end
@@ -246,14 +264,26 @@ class Gameplay
   def get_btwn_squares(opp_king_square, checker_square)
     king_coords = parse_coord(opp_king_square)
     checker_coords = parse_coord(checker_square)
-    if king_coords[0] == checker_coords[0]  # horiz line
-      btwn_squares = horiz_btwn_squares(king_coords, checker_coords)
-    elsif king_coords[1] == checker_coords[1] # vert line
-      btwn_squares = vert_btwn_squares(king_coords, checker_coords)
-    else # diagonal line
-      btwn_squares = diag_btwn_squares(king_coords, checker_coords)
-    end
+    btwn_squares = if king_coords[0] == checker_coords[0] # horiz line
+                     horiz_btwn_squares(king_coords, checker_coords)
+                   elsif king_coords[1] == checker_coords[1] # vert line
+                     vert_btwn_squares(king_coords, checker_coords)
+                   else # diagonal line
+                     diag_btwn_squares(king_coords, checker_coords)
+                   end
     btwn_squares
+  end
+
+  def get_blockers(opp_pieces, checker, board)
+    opp_king_square = opp_pieces.select { |piece| piece.class == King }[0].history.last
+    checker_square = checker[0].history.last
+    # get squares btwn king and attacking piece
+    btwn_squares = get_btwn_squares(opp_king_square, checker_square)
+
+    # if btwn_squares, for each square, see if an opponents piece can move here
+    blockers = btwn_squares&.map { |square| opp_pieces.select { |piece| piece.possible_moves(board).include?(square) } }
+
+    blockers ? blockers.flatten : []
   end
 
   # verify if opponent pieces can block piece placing their king in check
@@ -262,20 +292,8 @@ class Gameplay
     mult_lines = [Rook, Bishop, Queen].include?(checker.class)
     return false unless checker.length == 1 || mult_lines
 
-    opp_king_square = opp_pieces.select { |piece| piece.class == King }[0].history.last
-    checker_square = checker[0].history.last
-    # get squares btwn king and attacking piece
-    btwn_squares = get_btwn_squares(opp_king_square, checker_square)
-
-    # if btwn_squares, for each square, see if an opponents piece can move here
-    blockers = if btwn_squares
-                 btwn_squares.map { |square| opp_pieces.select { |piece| piece.possible_moves(board).include?(square) } }
-               else
-                 []
-               end
-    print "blockers: #{blockers}\n"
-    # if these pieces exist, return true
-    blockers.flatten.length.positive?
+    blockers = get_blockers(opp_pieces, checker, board)
+    blockers.length.positive?
   end
 
   # opp king in check, no possible way to escape check
