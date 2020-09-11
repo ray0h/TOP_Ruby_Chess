@@ -1,4 +1,4 @@
-require './lib/queen'
+require './lib/pieces/queen'
 
 describe Queen do
   let(:wqn) { Queen.new('white', 'player1') }

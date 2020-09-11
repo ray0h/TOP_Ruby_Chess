@@ -1,4 +1,4 @@
-require './lib/rook'
+require './lib/pieces/rook'
 
 describe Rook do
   let(:wr1) { Rook.new('white', 'player1') }

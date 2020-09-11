@@ -1,4 +1,4 @@
-require './lib/pawn'
+require './lib/pieces/pawn'
 
 grid1 = []
 0.upto(7) do

@@ -1,4 +1,4 @@
-require './lib/piece'
+require './lib/pieces/piece'
 
 describe Piece do
   let(:generic) { described_class.new('black', 'player1') }

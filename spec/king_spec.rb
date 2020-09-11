@@ -1,4 +1,4 @@
-require './lib/king'
+require './lib/pieces/king'
 
 grid = []
 0.upto(7) do

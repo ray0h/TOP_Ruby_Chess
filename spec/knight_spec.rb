@@ -1,4 +1,4 @@
-require './lib/knight'
+require './lib/pieces/knight'
 
 describe Knight do
   let(:bk1) { Knight.new('black', 'player2') }

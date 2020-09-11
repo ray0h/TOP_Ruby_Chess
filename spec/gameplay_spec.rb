@@ -1,7 +1,7 @@
 require './lib/gameplay'
-require './lib/king'
-require './lib/rook'
-require './lib/pawn'
+require './lib/pieces/king'
+require './lib/pieces/rook'
+require './lib/pieces/pawn'
 require 'fileutils'
 
 # prevents methods that puts / print text from doing so when testing for returns
