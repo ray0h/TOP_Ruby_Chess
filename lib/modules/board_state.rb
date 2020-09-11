@@ -1,5 +1,8 @@
 # methods related to assessing board state (e.g. checkmates)
 module BoardState
+
+  private
+  
   # opponent's king in check?
   def opp_check?(player_pieces, opponent_pieces, board)
     opp_king_square = opponent_pieces.select { |piece| piece.class == King }[0].history.last
@@ -107,6 +110,7 @@ module BoardState
     btwn_squares
   end
 
+  # get pieces that could potentially block checking piece
   def get_blockers(opp_pieces, checker, board)
     opp_king_square = opp_pieces.select { |piece| piece.class == King }[0].history.last
     checker_square = checker[0].history.last

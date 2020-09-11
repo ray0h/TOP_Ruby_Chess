@@ -1,5 +1,8 @@
 # methods related to moving pieces around chess board
 module Moves
+
+  private 
+  
   # prompt for start/final squares for move
   def get_moves(player, board)
     p_moves = 'X'
