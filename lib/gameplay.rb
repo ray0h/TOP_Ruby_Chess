@@ -45,7 +45,7 @@ class Gameplay
     choice = ''
     until choices.include?(choice) || choice == 'n'
       print 'choice: '
-      choice = STDIN.gets.chomp.downcase
+      choice = STDIN.gets.to_s.chomp.downcase
     end
     choice != 'n' ? @files[choice.to_i - 1].to_s : 'n'
   end
@@ -69,7 +69,9 @@ class Gameplay
   end
 
   def skip_p1?
-    return false unless @last_move
+    return false if @last_move.length.zero?
+
+    p @last_move
     piece = get_piece(@last_move[1], @board)
     piece.player_id == @player1.id
   end

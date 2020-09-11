@@ -6,7 +6,7 @@ grid = "   _ _ _ _ _ _ _ _\n"
   row = "#{i + 1} |_|_|_|_|_|_|_|_|\n"
   grid += row
 end
-grid += "   A B C D E F G H\nEnter 'Q' anytime to quite game\n\n"
+grid += "   A B C D E F G H\nEnter 'Q'/'S' anytime to (Q)uit/(S)ave game\n\n"
 board_array = Array.new(8) { Array.new(8) { nil }}
 
 describe Board do
