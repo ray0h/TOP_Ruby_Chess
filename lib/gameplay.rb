@@ -39,10 +39,10 @@ class Gameplay
       checkmate = checkmate?(@player2, @p2_pieces, @p1_pieces, @board)
       stalemate = stalemate?(@player2, @p2_pieces, @board)
 
-      break if p1_turn == 'Q' || checkmate || stalemate
+      break if %w[Q S].include?(p1_turn) || checkmate || stalemate
 
       p2_turn = player_turn(@player2, @p2_pieces, @p1_pieces, @board)
-      break if p2_turn == 'Q'
+      break if %w[Q S].include?(p2_turn)
 
       checkmate = checkmate?(@player1, @p1_pieces, @p2_pieces, @board)
       stalemate = stalemate?(@player1, @p1_pieces, @board)
@@ -56,7 +56,7 @@ class Gameplay
   def player_turn(player, player_pieces, opp_pieces, board)
     toggle_enpassant(board)
     p_moves = validate_moves(player, player_pieces, opp_pieces, board)
-    return p_moves if p_moves == 'Q'
+    return p_moves if %w[Q S].include?(p_moves)
 
     execute_move(p_moves, player_pieces, opp_pieces, board)
     toggle_enpassant(board)
@@ -103,7 +103,7 @@ class Gameplay
     p_moves = ''
     loop do
       p_moves = get_moves(player, board)
-      return p_moves if p_moves == 'Q'
+      return p_moves if %w[Q S].include?(p_moves)
 
       break unless still_in_check?(p_moves, player_pieces, opp_pieces, board)
 

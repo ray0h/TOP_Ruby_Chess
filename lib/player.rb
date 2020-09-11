@@ -25,7 +25,7 @@ class Player
   end
 
   def finish_move(init_square, board)
-    return init_square if init_square == 'Q'
+    return init_square if %w[Q S].include?(init_square)
 
     print "#{@id}, pick a square to move to, or press 'X' to cancel move: "
     final_square = STDIN.gets.to_s.chomp
@@ -36,7 +36,7 @@ class Player
       final_square = STDIN.gets.to_s.chomp
       move = valid_final_square?(final_square, init_square, board)
     end
-    %w[X Q].include?(final_square) ? final_square : [init_square, final_square]
+    %w[X Q S].include?(final_square) ? final_square : [init_square, final_square]
   end
 
   private
@@ -71,7 +71,7 @@ class Player
   end
 
   def valid_square?(square, board)
-    return { 'valid' => true, 'error_msg' => '' } if %w[X Q].include?(square)
+    return { 'valid' => true, 'error_msg' => '' } if %w[X Q S].include?(square)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(square)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square on the board' } unless on_board?(square)
 
@@ -90,7 +90,7 @@ class Player
   end
 
   def valid_final_square?(final_square, init_square, board)
-    return { 'valid' => true, 'error_msg' => '' } if %w[X Q].include?(final_square)
+    return { 'valid' => true, 'error_msg' => '' } if %w[X Q S].include?(final_square)
 
     piece = get_piece(init_square, board)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(final_square)
@@ -105,24 +105,3 @@ class Player
     { 'valid' => true, 'error_msg' => '' }
   end
 end
-
-# class Board
-#   attr_accessor :grid
-#   def initialize
-#     @grid = Array.new(8) {Array.new(8) {nil}}
-#   end
-# end 
-
-# class Pawn
-#   attr_accessor :player_id
-#   def initialize(player_id)
-#     @player_id = player_id
-#   end
-# end
-
-# wp1 = Pawn.new('player1')
-# board = Board.new
-# board.grid[1][0] = wp1
-# player1 = Player.new('player1')
-# init_move = player1.start_move(board)
-# player1.finish_move(board, init_move)
