@@ -1,0 +1,244 @@
+---
+:p1_pieces:
+- !ruby/object:Rook
+  color: white
+  player_id: player1
+  history:
+  - A1
+  opponent: 'black '
+  symbol: "♖"
+- !ruby/object:Knight
+  color: white
+  player_id: player1
+  history:
+  - B1
+  opponent: 'black '
+  symbol: "♘"
+- !ruby/object:Bishop
+  color: white
+  player_id: player1
+  history:
+  - C1
+  opponent: 'black '
+  symbol: "♗"
+- !ruby/object:Queen
+  color: white
+  player_id: player1
+  history:
+  - D1
+  opponent: 'black '
+  symbol: "♕"
+- !ruby/object:King
+  color: white
+  player_id: player1
+  history:
+  - E1
+  opponent: 'black '
+  symbol: "♔"
+- !ruby/object:Bishop
+  color: white
+  player_id: player1
+  history:
+  - F1
+  opponent: 'black '
+  symbol: "♗"
+- !ruby/object:Knight
+  color: white
+  player_id: player1
+  history:
+  - G1
+  opponent: 'black '
+  symbol: "♘"
+- !ruby/object:Rook
+  color: white
+  player_id: player1
+  history:
+  - H1
+  opponent: 'black '
+  symbol: "♖"
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - A2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - B2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - C2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - D2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - E2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - F2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - G2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: white
+  player_id: player1
+  history:
+  - H2
+  opponent: 'black '
+  symbol: "♙"
+  ep_flag: false
+:p2_pieces:
+- !ruby/object:Rook
+  color: black
+  player_id: player2
+  history:
+  - A8
+  opponent: white
+  symbol: "♜"
+- !ruby/object:Knight
+  color: black
+  player_id: player2
+  history:
+  - B8
+  opponent: white
+  symbol: "♞"
+- !ruby/object:Bishop
+  color: black
+  player_id: player2
+  history:
+  - C8
+  opponent: white
+  symbol: "♝"
+- !ruby/object:Queen
+  color: black
+  player_id: player2
+  history:
+  - D8
+  opponent: white
+  symbol: "♛"
+- !ruby/object:King
+  color: black
+  player_id: player2
+  history:
+  - E8
+  opponent: white
+  symbol: "♚"
+- !ruby/object:Bishop
+  color: black
+  player_id: player2
+  history:
+  - F8
+  opponent: white
+  symbol: "♝"
+- !ruby/object:Knight
+  color: black
+  player_id: player2
+  history:
+  - G8
+  opponent: white
+  symbol: "♞"
+- !ruby/object:Rook
+  color: black
+  player_id: player2
+  history:
+  - H8
+  opponent: white
+  symbol: "♜"
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - A7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - B7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - C7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - D7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - E7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - F7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - G7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+- !ruby/object:Pawn
+  color: black
+  player_id: player2
+  history:
+  - H7
+  opponent: white
+  symbol: "♟"
+  ep_flag: false
+:last_move: []

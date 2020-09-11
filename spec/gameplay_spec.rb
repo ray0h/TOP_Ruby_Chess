@@ -2,6 +2,7 @@ require './lib/gameplay'
 require './lib/king'
 require './lib/rook'
 require './lib/pawn'
+require 'fileutils'
 
 # prevents methods that puts / print text from doing so when testing for returns
 # `yield` allows code wrapped in method to run
@@ -174,15 +175,28 @@ end
 describe 'Gameplay - saving' do
   let(:game) { Gameplay.new }
 
-  it 'can accept "S" input to save current game' do
+  # it 'can accept "S" input to save current game' do
+  #   allow(STDIN).to receive(:gets).and_return('S')
+  #   silence_output do
+  #     game.setup_new_game
+  #     game.play
+  #   end
+  # end
+
+  it 'can save a game' do
+    directory = './saved_games'
+    # FileUtils.rm_rf Dir.glob(directory + '/**')
+    # expect(Dir.glob(directory + '/**').length).to eql(0)
+    files = Dir.glob(directory + '/**').length
     allow(STDIN).to receive(:gets).and_return('S')
     silence_output do
       game.setup_new_game
       game.play
+      expect(Dir.glob(directory + '/**').length).to be(files + 1)
     end
   end
-  xit 'can save a game' do
-  end
 
-  xit 'can load a game'
+  it 'can load a game' do
+    
+  end
 end

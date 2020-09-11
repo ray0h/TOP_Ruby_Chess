@@ -1,6 +1,7 @@
 require_relative './player'
 require_relative './board'
 require_relative './setup_board'
+require 'yaml'
 require 'pry'
 
 # Gameplay class
@@ -13,6 +14,8 @@ class Gameplay
     @p1_check = false
     @p2_check = false
     @last_move = []
+    @directory = './saved_games'
+    @files = Dir.glob("#{@directory}/**/*")
     @board = Board.new
     @setup_board = SetupBoard.new
   end
@@ -53,9 +56,18 @@ class Gameplay
 
   private
 
+  def save_game
+    directory = @directory + '/' + 'game' + (@files.length + 1).to_s + '.txt'
+    File.open(directory, 'w') do |f|
+      YAML.dump({ p1_pieces: @p1_pieces, p2_pieces: @p2_pieces, last_move: @last_move }, f)
+    end
+    print "game saved...goodbye \n"
+  end
+
   def player_turn(player, player_pieces, opp_pieces, board)
     toggle_enpassant(board)
     p_moves = validate_moves(player, player_pieces, opp_pieces, board)
+    save_game if p_moves == 'S'
     return p_moves if %w[Q S].include?(p_moves)
 
     execute_move(p_moves, player_pieces, opp_pieces, board)
