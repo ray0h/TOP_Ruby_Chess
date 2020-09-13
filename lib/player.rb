@@ -59,17 +59,17 @@ class Player
   def prompt_first_sq(board)
     print "#{@id}, pick a square: "
     init_square = STDIN.gets.to_s.chomp
-    valid_square?(init_square, board)
+    validate_square(init_square, board)
   end
 
   def prompt_final_sq(init_square, board)
     print "#{@id}, pick a square to move to, or press 'X' to cancel move: "
     final_square = STDIN.gets.to_s.chomp
-    valid_final_square?(final_square, init_square, board)
+    validate_final_square(final_square, init_square, board)
   end
 
-  def valid_square?(square, board)
-    return { 'valid' => true, 'error_msg' => '' } if %w[X Q S].include?(square)
+  def validate_square(square, board)
+    return { 'valid' => true, 'error_msg' => square } if %w[X Q S].include?(square)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square' } unless valid_id?(square)
     return { 'valid' => false, 'error_msg' => 'Enter a valid square on the board' } unless on_board?(square)
 
@@ -82,7 +82,7 @@ class Player
     { 'valid' => true, 'error_msg' => square }
   end
 
-  def valid_final_square?(final_square, init_square, board)
+  def validate_final_square(final_square, init_square, board)
     return { 'valid' => true, 'error_msg' => final_square } if %w[X Q S].include?(final_square)
 
     piece = get_piece(init_square, board)

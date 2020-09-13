@@ -1,13 +1,17 @@
 # methods related to moving pieces around chess board
 module Moves
+  private
 
-  private 
-  
   # prompt for start/final squares for move
   def get_moves(player, board)
     p_moves = 'X'
     while p_moves == 'X'
       init_move = player.start_move(board)
+
+      # exit if player enters 'Q' or 'S'
+      p_moves = init_move
+      break if %w[Q S].include?(p_moves)
+
       p_moves = player.finish_move(init_move, board)
       puts 'Canceling move' if p_moves == 'X'
     end

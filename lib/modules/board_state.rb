@@ -1,35 +1,35 @@
 # methods related to assessing board state (e.g. checkmates)
 module BoardState
   # opponent's king in check?
-  def opp_check?(player_pieces, opponent_pieces, board)
+  def opp_check?(my_pieces, opponent_pieces, board)
     opp_king_square = opponent_pieces.select { |piece| piece.class == King }[0].history.last
-    player_pieces.each do |piece|
+    my_pieces.each do |piece|
       next if piece.class == King
       return true if piece.possible_moves(board).include?(opp_king_square)
     end
     false
   end
 
-  def fast_forward_move(p_moves, opp_pieces, board)
+  def fast_forward_move(p_moves, opponent_pieces, board)
     my_piece = get_piece(p_moves[0], board)
     my_piece.history.push(p_moves[1]) if my_piece.class == King
-    capture_piece(p_moves, opp_pieces, board)
+    capture_piece(p_moves, opponent_pieces, board)
     board.move_piece(p_moves[0], p_moves[1])
   end
 
   def rewind_move(p_moves, board)
     board.move_piece(p_moves[1], p_moves[0])
-    opp_piece = get_piece(p_moves[1], board)
-    board.add_piece(opp_piece, p_moves[1]) if opp_piece
-    opp_pieces.push(opp_piece) if opp_piece
+    opponent_piece = get_piece(p_moves[1], board)
+    board.add_piece(opp_piece, p_moves[1]) if opponent_piece
+    opponent_pieces.push(opponent_piece) if opponent_piece
     my_piece = get_piece(p_moves[0], board)
     my_piece.history.pop if my_piece.class == King
   end
 
-  def still_in_check?(p_moves, player_pieces, opp_pieces, board)
-    fast_forward_move(p_moves, opp_pieces, board)
+  def still_in_check?(p_moves, my_pieces, opponent_pieces, board)
+    fast_forward_move(p_moves, opponent_pieces, board)
     # check if move eliminates check
-    still_in_check = opp_check?(opp_pieces, player_pieces, board)
+    still_in_check = opp_check?(opponent_pieces, my_pieces, board)
     rewind_move(p_moves, board)
 
     still_in_check
@@ -108,25 +108,52 @@ module BoardState
   end
 
   # get pieces that could potentially block checking piece
-  def get_blockers(opp_pieces, checker, board)
-    opp_king_square = opp_pieces.select { |piece| piece.class == King }[0].history.last
+  def get_blockers(opponent_pieces, checker, board)
+    opp_king_square = opponent_pieces.select { |piece| piece.class == King }[0].history.last
     checker_square = checker[0].history.last
     # get squares btwn king and attacking piece
     btwn_squares = get_btwn_squares(opp_king_square, checker_square)
 
     # if btwn_squares, for each square, see if an opponents piece can move here
-    blockers = btwn_squares&.map { |square| opp_pieces.select { |piece| piece.possible_moves(board).include?(square) } }
+    blockers = btwn_squares&.map { |square| opponent_pieces.select { |piece| piece.possible_moves(board).include?(square) } }
 
     blockers ? blockers.flatten : []
   end
 
   # verify if opponent pieces can block piece placing their king in check
-  def block_checker?(my_pieces, opp_pieces, board)
-    checker = checking_pieces(my_pieces, opp_pieces, board)
+  def block_checker?(my_pieces, opponent_pieces, board)
+    checker = checking_pieces(my_pieces, opponent_pieces, board)
     mult_lines = [Rook, Bishop, Queen].include?(checker.class)
     return false unless checker.length == 1 || mult_lines
 
-    blockers = get_blockers(opp_pieces, checker, board)
+    blockers = get_blockers(opponent_pieces, checker, board)
     blockers.length.positive?
+  end
+
+  def stop_checker?(my_pieces, opponent_pieces, board)
+    checkers = checking_pieces(my_pieces, opponent_pieces, board)
+    checker_blocker = block_checker?(my_pieces, opponent_pieces, board)
+    checker_remover = remove_checker?(my_pieces, opponent_pieces, board)
+    checkers.length > 1 || (!checker_blocker && !checker_remover)
+  end
+
+  # opp king in check, no possible way to escape check
+  def checkmate?(opponent_pieces, my_pieces, board)
+    in_check = opp_check?(my_pieces, opponent_pieces, board)
+    opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
+    no_king_moves = opp_king.possible_moves(board).length.zero?
+    checkmate = no_king_moves && in_check && stop_checker?(my_pieces, opponent_pieces, board)
+    puts 'Checkmate!, Game over' if checkmate
+    checkmate
+  end
+
+  # king not in check, no possible moves
+  def stalemate?(my_pieces, opponent_pieces, board)
+    in_check = opp_check?(my_pieces, opponent_pieces, board)
+
+    opp_moves = opponent_pieces.map { |piece| piece.possible_moves(board).length }
+    stalemate = opp_moves.all?(&:zero?) && !in_check
+    puts 'Stalemate, Game over' if stalemate
+    stalemate
   end
 end

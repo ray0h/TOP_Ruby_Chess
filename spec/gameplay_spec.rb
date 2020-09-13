@@ -26,7 +26,6 @@ describe 'Gameplay - setting up' do
   end
 end
 
-
 describe 'Gameplay - basic gameplay' do
   let(:game) { Gameplay.new }
   let(:bkg) { King.new('black', 'player2') }
@@ -54,13 +53,13 @@ describe 'Gameplay - basic gameplay' do
     end
   end
 
-  it 'recognizes checks' do
+  it 'recognizes checks' do 
     silence_output do
-      expect(game.p1_check).to be_falsy
       allow(STDIN).to receive(:gets).and_return('F2', 'F4', 'E7', 'E6', 'B1', 'C3', 'D8', 'H4', 'Q')
       game.setup_new_game
       game.play
-      expect(game.p1_check).to be_truthy
+      last_str = $stdout.string[-30..-1]
+      expect(last_str).to eql("Check\nplayer1, pick a square: ")
     end
   end
 
@@ -71,11 +70,9 @@ describe 'Gameplay - basic gameplay' do
       game.play
       expect(game.board.grid[2][0]).to be_nil
       expect(game.board.grid[1][0]).to be_truthy
-      expect(game.p1_check).to be_truthy
     end
   end
 
- 
   it 'recognizes checkmates' do
     bkg.history.push('H8')
     wkg.history.push('F7')
@@ -85,7 +82,8 @@ describe 'Gameplay - basic gameplay' do
       allow(STDIN).to receive(:gets).and_return('G1', 'H1')
       game.setup_in_progress_game([wkg, wr1], [bkg], %w[H7 H8])
       game.play
-      expect(game.p2_check).to be_truthy
+      last_str = $stdout.string[-22..-1]
+      expect(last_str).to eql("Checkmate!, Game over\n")
     end
   end
 
@@ -98,11 +96,11 @@ describe 'Gameplay - basic gameplay' do
       allow(STDIN).to receive(:gets).and_return('G8', 'G7')
       game.setup_in_progress_game([wkg, wr1], [bkg], %w[G1 H1])
       game.play
-      expect(game.p2_check).to be_falsy
+      first_str = $stdout.string[0, 21]
+      expect(first_str).to eql("Stalemate, Game over\n")
     end
   end
 end
-
 
 describe 'Gameplay - advanced gameplay' do
   let(:game) { Gameplay.new }
@@ -133,12 +131,10 @@ describe 'Gameplay - advanced gameplay' do
     silence_output do
       allow(STDIN).to receive(:gets).and_return('A7', 'A8', 'Rook', 'Q')
       game.setup_in_progress_game([wkg, wp1], [bkg], %w[E7 E8])
-      print "#{game.p1_check}, #{game.p2_check}\n"
 
       game.play
       expect(game.board.grid[7][0].class).to eql(Rook)
       expect(game.p1_pieces.length).to eql(2)
-      expect(game.p2_check).to be_truthy
     end
   end
 
