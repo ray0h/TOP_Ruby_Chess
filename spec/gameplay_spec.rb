@@ -178,7 +178,7 @@ describe 'Gameplay - advanced gameplay' do
   end
 end
 
-describe 'Gameplay - saving' do
+describe 'Gameplay - saving/loading' do
   let(:game) { Gameplay.new }
 
   xit 'can save a game' do
@@ -200,6 +200,23 @@ describe 'Gameplay - saving' do
       game.setup_board
       expect(game.board.grid[1][3]).to be_nil
       expect(game.board.grid[3][3].class).to be(Pawn)
+    end
+  end
+
+  it 'can start a brand new game' do
+    allow(STDIN).to receive(:gets).and_return('N')
+    silence_output do
+      game.setup_board
+      expect(game.board.grid[0].none?(nil)).to be_truthy
+      expect(game.board.grid[1].none?(nil)).to be_truthy
+
+      expect(game.board.grid[2].all?(nil)).to be_truthy
+      expect(game.board.grid[3].all?(nil)).to be_truthy
+      expect(game.board.grid[4].all?(nil)).to be_truthy
+      expect(game.board.grid[5].all?(nil)).to be_truthy
+
+      expect(game.board.grid[6].none?(nil)).to be_truthy
+      expect(game.board.grid[7].none?(nil)).to be_truthy
     end
   end
 end
