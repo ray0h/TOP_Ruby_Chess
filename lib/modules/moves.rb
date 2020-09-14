@@ -96,5 +96,4 @@ module Moves
     final_coords = parse_coord(p_moves[1])
     piece.class == Pawn && final_coords[0] == 7
   end
-  
 end

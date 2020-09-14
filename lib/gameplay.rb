@@ -6,9 +6,8 @@ require './lib/modules/board_state'
 require './lib/modules/save_load'
 require './lib/modules/board_helpers'
 require 'yaml'
-require 'pry'
 
-# Gameplay class
+# Main controllers/logic for setting up and playing a game of chess
 class Gameplay
   attr_reader :player1, :player2, :board, :p1_pieces, :p2_pieces
   include Moves
@@ -56,7 +55,6 @@ class Gameplay
       break if quit_game
 
       quit_game = move_and_eval(@player2, @p2_pieces, @p1_pieces, @board)
-
     end
   end
 

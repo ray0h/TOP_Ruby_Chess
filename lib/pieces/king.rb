@@ -1,7 +1,9 @@
 require_relative './piece'
+require './lib/modules/checks'
 
 # King piece class
 class King < Piece
+  include Checks
   attr_reader :symbol
   def initialize(color, player_id)
     super(color, player_id)
@@ -13,10 +15,13 @@ class King < Piece
     current_square = @history.last
     current_coords = parse_coord(current_square)
     poss_moves = king_moves(current_coords, board) + castle_moves(board)
-
     # king can not move to spot where he would be placed in check
     opp_moves = opponent_poss_moves(board)
-    poss_moves.filter { |move| !opp_moves.include?(move) }
+    check_filter = poss_moves.filter { |move| !opp_moves.include?(move) }
+    
+    # king can not capture piece that would place him in check
+    opp_pieces = get_opponent_pieces(board)
+    check_filter.filter { |final_sq| !still_in_check?([current_square, final_sq], [self], opp_pieces, board) }
   end
 
   private
@@ -92,11 +97,7 @@ class King < Piece
   end
 
   def can_castle?(rook, board)
-    false if first_move?
-    false if rook.first_move?
-    false unless between_squares_empty?(rook, board)
-    false unless no_check_between_squares?(rook, board)
-    true
+    first_move? && rook.first_move? && between_squares_empty?(rook, board) && no_check_between_squares?(rook, board)
   end
 
   def get_rooks(board)

@@ -1,39 +1,8 @@
+require './lib/modules/checks'
+
 # methods related to assessing board state (e.g. checkmates)
 module BoardState
-  # opponent's king in check?
-  def opp_check?(my_pieces, opponent_pieces, board)
-    opp_king_square = opponent_pieces.select { |piece| piece.class == King }[0].history.last
-    my_pieces.each do |piece|
-      next if piece.class == King
-      return true if piece.possible_moves(board).include?(opp_king_square)
-    end
-    false
-  end
-
-  def fast_forward_move(p_moves, opponent_pieces, board)
-    my_piece = get_piece(p_moves[0], board)
-    my_piece.history.push(p_moves[1]) if my_piece.class == King
-    capture_piece(p_moves, opponent_pieces, board)
-    board.move_piece(p_moves[0], p_moves[1])
-  end
-
-  def rewind_move(p_moves, board)
-    board.move_piece(p_moves[1], p_moves[0])
-    opponent_piece = get_piece(p_moves[1], board)
-    board.add_piece(opp_piece, p_moves[1]) if opponent_piece
-    opponent_pieces.push(opponent_piece) if opponent_piece
-    my_piece = get_piece(p_moves[0], board)
-    my_piece.history.pop if my_piece.class == King
-  end
-
-  def still_in_check?(p_moves, my_pieces, opponent_pieces, board)
-    fast_forward_move(p_moves, opponent_pieces, board)
-    # check if move eliminates check
-    still_in_check = opp_check?(opponent_pieces, my_pieces, board)
-    rewind_move(p_moves, board)
-
-    still_in_check
-  end
+  include Checks
 
   # array id'ing piece(s) that place king in check
   def checking_pieces(my_pieces, opponent_pieces, board)
@@ -130,7 +99,7 @@ module BoardState
     blockers.length.positive?
   end
 
-  def stop_checker?(my_pieces, opponent_pieces, board)
+  def cant_stop_check?(my_pieces, opponent_pieces, board)
     checkers = checking_pieces(my_pieces, opponent_pieces, board)
     checker_blocker = block_checker?(my_pieces, opponent_pieces, board)
     checker_remover = remove_checker?(my_pieces, opponent_pieces, board)
@@ -141,8 +110,13 @@ module BoardState
   def checkmate?(opponent_pieces, my_pieces, board)
     in_check = opp_check?(my_pieces, opponent_pieces, board)
     opp_king = opponent_pieces.select { |piece| piece.class == King }[0]
+    # p opp_king.possible_moves(board)
     no_king_moves = opp_king.possible_moves(board).length.zero?
-    checkmate = no_king_moves && in_check && stop_checker?(my_pieces, opponent_pieces, board)
+    # print "incheck #{in_check}\n"
+    # print "no moves #{opp_king.possible_moves(board)}\n"
+    # print "cant_stop_check #{cant_stop_check?(my_pieces, opponent_pieces, board)}"
+
+    checkmate = no_king_moves && in_check && cant_stop_check?(my_pieces, opponent_pieces, board)
     puts 'Checkmate!, Game over' if checkmate
     checkmate
   end

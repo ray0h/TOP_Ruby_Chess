@@ -53,7 +53,7 @@ describe 'Gameplay - basic gameplay' do
     end
   end
 
-  it 'recognizes checks' do 
+  it 'recognizes checks' do
     silence_output do
       allow(STDIN).to receive(:gets).and_return('F2', 'F4', 'E7', 'E6', 'B1', 'C3', 'D8', 'H4', 'Q')
       game.setup_new_game
