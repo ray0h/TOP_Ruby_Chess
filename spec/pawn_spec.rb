@@ -1,10 +1,6 @@
 require './lib/pieces/pawn'
 
-grid1 = []
-0.upto(7) do
-  row = Array.new(8) { nil }
-  grid1.push(row)
-end
+grid = Array.new(8) { Array.new(8) { nil } }
 
 describe 'Pawn - initial moves' do
   let(:wp1) { Pawn.new('white', 'player1') }
@@ -17,14 +13,14 @@ describe 'Pawn - initial moves' do
   end
 
   it 'can move forward one or two spaces to start' do
-    allow(board).to receive(:grid).and_return(grid1)
+    allow(board).to receive(:grid).and_return(grid)
     wp1.history.push('A2')
     expect(wp1.possible_moves(board)).to include('A3', 'A4')
     expect(wp1.possible_moves(board).length).to eql(2)
   end
 
   it 'can move forward only one space after first move' do
-    allow(board).to receive(:grid).and_return(grid1)
+    allow(board).to receive(:grid).and_return(grid)
     bp1.history.push('B7')
     expect(bp1.possible_moves(board)).to include('B6', 'B5')
     bp1.history.push('B6')
@@ -39,19 +35,20 @@ describe 'Pawn - blocked paths' do
   let(:board) { double }
 
   it 'can not single move if piece is in front of it' do
-    grid1[2][0] = bp1
-    allow(board).to receive(:grid).and_return(grid1)
+    grid[2][0] = bp1
+    allow(board).to receive(:grid).and_return(grid)
     wp1.history.push('A2')
     expect(wp1.possible_moves(board).length).to be_zero
+    grid[2][0] = nil
   end
 
   it 'can not double move if piece is in front of it' do
-    grid1[2][0] = nil
-    grid1[3][0] = bp1
-    allow(board).to receive(:grid).and_return(grid1)
+    grid[3][0] = bp1
+    allow(board).to receive(:grid).and_return(grid)
     wp1.history.push('A2')
     expect(wp1.possible_moves(board).length).to eql(1)
     expect(wp1.possible_moves(board)).to include('A3')
+    grid[3][0] = nil
   end
 end
 
@@ -70,7 +67,7 @@ describe 'Pawn - capturing moves' do
     expect(wp1.possible_moves(board)).to include('B5', 'C5')
   end
 
-  it 'can capture en passant' do
+  it 'en passant moves show up in possible_moves' do
     wp1.history = %w[C2 C4]
     bp1.history = %w[B7 B5 B4]
     wp1.ep_flag = true

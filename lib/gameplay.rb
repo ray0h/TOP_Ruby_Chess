@@ -88,7 +88,7 @@ class Gameplay
     return p_moves if %w[Q S].include?(p_moves)
 
     execute_move(p_moves, player_pieces, opp_pieces, board)
-    # remove any active en passant flag
+    # remove any active en passant flag 
     toggle_enpassant(@last_move, board)
     @last_move = p_moves
     puts('Check') if opp_check?(player_pieces, opp_pieces, board)

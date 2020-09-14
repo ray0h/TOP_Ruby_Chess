@@ -165,6 +165,16 @@ describe 'Gameplay - advanced gameplay' do
         expect(bp2.possible_moves(game.board)).to_not include('A3')
       end
     end
+
+    it 'recognizes and removes an en passant captured piece' do
+      silence_output do
+        allow(STDIN).to receive(:gets).and_return('A2', 'A4', 'B4', 'A3', 'Q')
+        game.setup_in_progress_game([wkg, wp1], [bkg, bp2], %w[B5 B4])
+        game.play
+        expect(game.p1_pieces.length).to eql(1)
+        expect(game.board.grid[3][0]).to be_nil
+      end
+    end
   end
 end
 
