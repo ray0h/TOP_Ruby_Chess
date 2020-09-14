@@ -6,7 +6,7 @@ class Board
   end
 
   def print_board(grid = @grid)
-    # system 'clear'
+    system 'clear'
     top = "   _ _ _ _ _ _ _ _\n"
     7.downto(0) do |i|
       row = "#{i + 1} |"

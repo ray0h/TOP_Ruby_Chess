@@ -58,13 +58,13 @@ class Player
 
   def prompt_first_sq(board)
     print "#{@id}, pick a square: "
-    init_square = STDIN.gets.to_s.chomp
+    init_square = STDIN.gets.to_s.capitalize.chomp
     validate_square(init_square, board)
   end
 
   def prompt_final_sq(init_square, board)
     print "#{@id}, pick a square to move to, or press 'X' to cancel move: "
-    final_square = STDIN.gets.to_s.chomp
+    final_square = STDIN.gets.to_s.capitalize.chomp
     validate_final_square(final_square, init_square, board)
   end
 
